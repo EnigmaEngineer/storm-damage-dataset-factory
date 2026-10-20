@@ -1,0 +1,8 @@
+# 57 MB of NOAA CSV and 28 MB of Parquet. Rebuilt from source.lock.json, never committed.
+data/
+__pycache__/
+*.pyc
+# dagster dev leaves run storage behind
+.dagster_home/
+dagster_home/
+tmp*/
