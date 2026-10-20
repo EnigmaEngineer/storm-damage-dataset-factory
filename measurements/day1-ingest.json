@@ -1,0 +1,54 @@
+{
+  "dataset": "noaa_storm_events",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "per_year": {
+    "2019": {
+      "rows": 67864,
+      "events": 67864,
+      "episodes": 10593,
+      "rows_with_a_point": 43516,
+      "rows_with_property_damage": 54573
+    },
+    "2020": {
+      "rows": 61281,
+      "events": 61281,
+      "episodes": 9511,
+      "rows_with_a_point": 39764,
+      "rows_with_property_damage": 48420
+    },
+    "2021": {
+      "rows": 61389,
+      "events": 61389,
+      "episodes": 9484,
+      "rows_with_a_point": 35117,
+      "rows_with_property_damage": 48842
+    },
+    "2022": {
+      "rows": 69887,
+      "events": 69887,
+      "episodes": 10464,
+      "rows_with_a_point": 35851,
+      "rows_with_property_damage": 53496
+    },
+    "2023": {
+      "rows": 75593,
+      "events": 75593,
+      "episodes": 10359,
+      "rows_with_a_point": 45450,
+      "rows_with_property_damage": 57763
+    }
+  },
+  "total": {
+    "rows": 336014,
+    "events": 336014,
+    "episodes": 50411,
+    "rows_with_a_point": 199698,
+    "rows_with_property_damage": 263094
+  }
+}
