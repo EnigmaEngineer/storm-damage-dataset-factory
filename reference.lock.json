@@ -1,0 +1,13 @@
+{
+  "zone_county": {
+    "url": "https://www.weather.gov/source/gis/Shapefiles/County/bp16ap26.dbx",
+    "issued": "16ap26",
+    "bytes": 350723,
+    "sha256": "69d3472d4d576b8a4924efb7a43108f7c64111f503e15efd650f43dc617a6f12"
+  },
+  "national_county": {
+    "url": "https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt",
+    "bytes": 126639,
+    "sha256": "9f6e5f6eb6ac2f5e9a36d5fd01dec77991bddc75118f748a069441a4782970d6"
+  }
+}

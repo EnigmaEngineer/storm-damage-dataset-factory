@@ -1,0 +1,30 @@
+{
+  "dataset": "storm_event_county_joins",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "event_county_pairs": 341869,
+  "distinct_events_with_a_county": 309694,
+  "distinct_counties": 3212,
+  "pairs_from_a_county_coded_event": 184700,
+  "pairs_from_a_zone_coded_event": 157169,
+  "spc": {
+    "report_county_rows": 141518,
+    "distinct_events_with_an_spc_report_the_same_day": 152163,
+    "matched_pairs": 196697
+  },
+  "fema": {
+    "county_designations": 14039,
+    "incident_types_neither_list_claims": [],
+    "matched_pairs_all_incident_types": 482338,
+    "distinct_events_all_incident_types": 207706,
+    "matched_pairs_weather_incidents": 40856,
+    "distinct_events_weather_incidents": 25745,
+    "matched_pairs_pandemic": 441355,
+    "pandemic_share_of_all_matches_pct": 91.5
+  }
+}
