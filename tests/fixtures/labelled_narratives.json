@@ -1,0 +1,1250 @@
+{
+ "sample": "storm events event narratives, 2019 to 2023",
+ "drawn": "2026-10-21, seed 20261021, stratified so recall is measurable on a population base rate near zero",
+ "strata": {
+  "possessive": 4,
+  "honorific": 3,
+  "random": 32,
+  "age": 28,
+  "naive_bigram": 30
+ },
+ "labelled_by": "read in full by hand, one pass",
+ "note": "Two narratives are withheld because they carry the names of private individuals. Committing the labelled sample for a name scrubber with the names in it would publish exactly what the scrubber is for.",
+ "rows": [
+  {
+   "event_id": 794797,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "7ffbaa126e904c7f44a91471c82c52b8f78f3fbfa5c6613ba182a3091389bbe7",
+   "narrative_chars": 63,
+   "narrative": "Mesonet station 17 NW Big Sandy reported a wind gust of 70 mph.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 794955,
+   "stratum": "age",
+   "narrative_sha256": "c4c745af01f6285d4d46d4a5a0b2a119c2bbd259e4fc0f0cad11369fefb5d29f",
+   "narrative_chars": 305,
+   "narrative": "A dusting of snow and cold temperatures from the night before created some slick spots on area roads Saturday morning, January 26th. This likely played a part in a rollover crash on I-69 in Huntington County Saturday morning. This accident occurred around 7:24 am in the morning killing a 29 year old man.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 289,
+     "end": 304,
+     "kind": "casualty",
+     "text": "29 year old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 800125,
+   "stratum": "age",
+   "narrative_sha256": "09f9c8e7a8789a3dd19e65aaedbd29ce7012f130a471c9c819dd10a83f654c3a",
+   "narrative_chars": 317,
+   "narrative": "Several local weather sources measured wind chill values lower than -35F from Tuesday afternoon, through Thursday morning. The coldest wind chill was -52F. ||Unfortunately, a 46 year old woman died due to the extreme cold weather in Carver County. The individual was found outside of her vehicle in Laketown Township.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 175,
+     "end": 192,
+     "kind": "casualty",
+     "text": "46 year old woman"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 810004,
+   "stratum": "random",
+   "narrative_sha256": "108c59a285dbc7925766e9929103868f96d09f43636db307ecc92bfb6ffe9441",
+   "narrative_chars": 164,
+   "narrative": "A trained spotter reported 10 inches of snow in Wamsutter. The snow combined with winds gusting past 40 mph to cause the closure of Interstate 80 for several hours.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 813579,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "1cb1553e867df7041db6ab08fd61fac8f01e2e7ae3c7899e0f1b92ddff3b0201",
+   "narrative_chars": 215,
+   "narrative": "Orlando Health Emergency Management reported several downed trees causing damage to a couple of vehicles at the Dr. Phillips Hospital. Also, broadcast media relayed reports of downed power lines on Turkey Lake Road.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 815875,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "842bdddb511860e02fc36a203aa85e56c64bfd71da1a5cb925c4957224ed22e4",
+   "narrative_chars": 118,
+   "narrative": "Denver Tower reported that 3 inches of hail had accumulated on airport operating surfaces, which caused flight delays.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 817024,
+   "stratum": "possessive",
+   "narrative_sha256": "493e1839013428c6a2f5820c6fc8a8025d030cce75f9d16882a2c4fa35c69d45",
+   "narrative_chars": 340,
+   "narrative": "A National Weather Service storm survey revealed that an EF-1 tornado produced a concentrated convergent damage path in rural sections of southern Wright County.  The tornado destroyed three outbuildings on the Wright County Commisioner's property, and snapped hardwood trees at the base of the trunk. Wind speeds were estimated at 105 mph.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 818561,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "3aedce77a60cdf0fb7e96a1697d3f75979a8d2cacab67acb60d3f2123f69e91f",
+   "narrative_chars": 51,
+   "narrative": "The Highway Department reported several trees down.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 819450,
+   "stratum": "age",
+   "narrative_sha256": "28093b1f5fd32f9594ac4aa65ad417d34546c81de4fe5d32ba9958f6b4f7cf72",
+   "narrative_chars": 439,
+   "narrative": "The county Emergency Manager relayed a report of a mudslide on North Bend Road (Kentucky Highway 615) northeast of Stanton. This slide fell onto a two story house, causing the second floor to collapse into the first floor. An elderly 90 year old woman was trapped for a period of time, but was unscathed after being rescued by emergency crews. The portion of North Bend Road near the house was closed for safety precautions until the 20th.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 234,
+     "end": 251,
+     "kind": "casualty",
+     "text": "90 year old woman"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 819771,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "1b60db34c471c909eae3556ef47279655a54d01f2ca1b9f5eea4f927962255e3",
+   "narrative_chars": 84,
+   "narrative": "Weatherflow site at Poenisch Park on Corpus Christi Bay measured a gust to 44 knots.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 821122,
+   "stratum": "age",
+   "narrative_sha256": "5ba6d6362668c0107e2a1a47c57a0f0457c376d4b93a9883a9844168d3f97e2d",
+   "narrative_chars": 215,
+   "narrative": "A 59 year old man was struck by lightning while he was climbing a ladder to perform repairs on the roof of a home. He was on life support for a few weeks, but was unable to recover from his injuries and passed away.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 17,
+     "kind": "casualty",
+     "text": "59 year old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 824124,
+   "stratum": "age",
+   "narrative_sha256": "e2f128524cc34de0560ec02a14fc815dd8e1804d08f6c09071129e2f4ad300c5",
+   "narrative_chars": 171,
+   "narrative": "The Milwaukee County Medical Examiner's Office reported the death of a man due to hypothermia. The 56-year-old man was found in his vehicle which was parked on the street.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 99,
+     "end": 114,
+     "kind": "casualty",
+     "text": "56-year-old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 826203,
+   "stratum": "random",
+   "narrative_sha256": "25c1162310bf70dd6918bf8617000377a0cb4a444172dbead827d46aa531d86e",
+   "narrative_chars": 58,
+   "narrative": "Golf ball-sized hail (1.75 inch in diameter) was reported.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 828652,
+   "stratum": "random",
+   "narrative_sha256": "53d84046f348bc7656425392d0097d049e6824ad271711f28242f867da97c1f4",
+   "narrative_chars": 95,
+   "narrative": "A trained spotter reported a large two to three foot diameter tree was downed near Duke Energy.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 836109,
+   "stratum": "random",
+   "narrative_sha256": "13a546af31f32b7e7beba3802e591a733a14461ec4033640f1d4b8b1054f5196",
+   "narrative_chars": 106,
+   "narrative": "A tree was downed in the roadway at the intersection of MD-301 and 4-H Park Rd. Time estimated from radar.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 837886,
+   "stratum": "random",
+   "narrative_sha256": "194cdc5d6501037e69e04592ef321747bf643e67c955f7c42ac195b60bf2435e",
+   "narrative_chars": 69,
+   "narrative": "Several roads impassable between the cities of Seale and Phenix City.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 837909,
+   "stratum": "random",
+   "narrative_sha256": "e9ff7b830001eede05fc97d86daf8b225623904006350d10396c35f7d1a486c0",
+   "narrative_chars": 36,
+   "narrative": "Several large trees were blown down.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 843755,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "9d243322d4df73bd81d4f9004fba0ce50385c5bd75424399ac5e4c546e600966",
+   "narrative_chars": 68,
+   "narrative": "A 911 Call Center said Washington Street was closed due to flooding.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 846438,
+   "stratum": "age",
+   "narrative_sha256": "199b80c3dc9a2a89086d87e9d44a0e9690b9725f82a39a9009ece483e082e402",
+   "narrative_chars": 356,
+   "narrative": "A 46 year old female from Eustis died from injuries sustained in an automobile accident when she encountered flood waters over Highway 21 approximately 4 miles south of Cozad. The vehicle left the highway into a water-filled ditch and rolled onto its roof. The other occupant of the vehicle, the driver's 26 year old daughter, survived with minor injuries.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 20,
+     "kind": "casualty",
+     "text": "46 year old female"
+    },
+    {
+     "start": 305,
+     "end": 325,
+     "kind": "casualty",
+     "text": "26 year old daughter"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 846943,
+   "stratum": "age",
+   "narrative_sha256": "9ce21063cf7ab75d9ac3abc72fada2dba77d28398289d350b5f1ebf740931148",
+   "narrative_chars": 855,
+   "narrative": "Local broadcast media relayed the report that a 29-year-old man from Kissimmee, Florida died when he drowned at Cocoa Beach as a result of being caught in a rip current. Around 1315 LST the man went missing near Minutemen Causeway and North Atlantic Avenue in Cocoa Beach. The man's family reported that he and his brother were swimming in the ocean when the victim was caught in a rip current and was carried further out to sea. The brother tried without success to reach him, and when the brother got back to shore the family called first responders. Beach safety and other officials searched unsuccessfully for the missing man. The next afternoon, September 24, a beachgoer noticed a body floating in the water near 11th Street South, and called police and ocean rescue officials. Officials confirmed the body was the missing man from the previous day.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 48,
+     "end": 63,
+     "kind": "casualty",
+     "text": "29-year-old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 847870,
+   "stratum": "random",
+   "narrative_sha256": "4bf969a3570134e45bb52d4e90e0843f8c6e97c919161725d9f92a9770586502",
+   "narrative_chars": 161,
+   "narrative": "Temperatures in the middle to upper 90s combined with dewpoints in the upper 70s to create heat index values that exceeded 105 degrees for a second day in a row.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 851287,
+   "stratum": "random",
+   "narrative_sha256": "a3d6fabac4a86279de10186477397106bd402839b5c7c4b4f3f8da45b9a25836",
+   "narrative_chars": 51,
+   "narrative": "Heat index values remained at or above 105 degrees.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 851492,
+   "stratum": "age",
+   "narrative_sha256": "ce74de1cba8c03dc42af7122281e19857f80eb4f5b339897683dec3ded0f8305",
+   "narrative_chars": 91,
+   "narrative": "A large 100 year old oak tree was uprooted onto a 1903 home at 722 Ferry Street in Decatur.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": [
+    {
+     "text": "100 year old oak tree"
+    }
+   ]
+  },
+  {
+   "event_id": 853349,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "d62d47c9311e1bab235dba7f45bd93b6f1786265d5284a2c8db65458145a2e8e",
+   "narrative_chars": 156,
+   "narrative": "The NOAA CO-OPS station at Brazos Santiago reported peak wind gusts to 37 knots with a downburst from a thunderstorm during the early afternoon of June 4th.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 854643,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "67030175bdee6b61ce6d18781e194da511f369ca6bf2f9091c08e03917d94583",
+   "narrative_chars": 204,
+   "narrative": "Heat index values between 105 and 112 degrees occurred across the county during the afternoon hours on Monday August 26. Denton County Public Health reported 3 cases on Heat Related Illnesses on this day.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 856142,
+   "stratum": "random",
+   "narrative_sha256": "11446e62f1c8b6c1d4caf73481e8d996afae9cbf9bace3621fd9a5a3fc056a9b",
+   "narrative_chars": 143,
+   "narrative": "Above normal temperatures and rainfall totals about one-tenth of normal for September increased the drought intensity to extreme category (D3).",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 857412,
+   "stratum": "random",
+   "narrative_sha256": "0d11b41b057d16f5b1af7452951ad6b2289466fd59bfe9d55443e7ccc6219c63",
+   "narrative_chars": 1176,
+   "narrative": "There was a rain event to prime soils a day before the flooding event after a very dry period for the northern inner channels of Southeast Alaska. Moderate to heavy rains moved over the area on September 20th. The high rain rates continued for the next forty-eight hours. Rainfall totals from this time frame ranged from one to two inches near sea level with higher amounts in the headwaters at higher elevations. The very warm temperatures created very high freezing levels that increase runoff from snow or ice melt. The Taiya River started to rise through the afternoon of September 20th and went above minor flood stage of sixteen point five feet by the early evening hours. The river continued to rise at steep fashion through the night and went above moderate flood stage of seventeen feet a little past midnight of September 21st. The Taiya River crested in the early morning of September 21st at seventeen point sixty-four feet. The rain slowly diminished through the rest of the morning hours and the river slowly receded to be below minor flood stage by the afternoon of September 21st. The National Park Service reported that there was some flooding Chilkoot trail.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 859829,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "3da50aac66a49deb66716b1eccce60f5dd468cc8a104eeab618e28892fcff9c0",
+   "narrative_chars": 77,
+   "narrative": "The Mesonet station MGRM7 in Mountain Grove reported 2.23 inches of rainfall.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 863677,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "7498a5a62c6d14322b905cb42861015fa77579694f94770c8e61c1c26a51c397",
+   "narrative_chars": 144,
+   "narrative": "Law Enforcement reported a large tree down near the intersection of 77th Street and Highway 99. The time of the event was estimated using radar.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 867545,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "cb1f4a31c8a5077c7fa5614f088d464256c300de0422a6e1d413eb974680bde3",
+   "narrative_chars": 102,
+   "narrative": "The observer eight miles north of Mass City measured nearly 10 inches of lake effect snow in 24 hours.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 871110,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "63a18701c403c7792a17cef161535cbbae6b80fa3669d9464095e271b98ba16d",
+   "narrative_chars": 84,
+   "narrative": "The 49 North Ski Resort reported 13 inches of new snow accumulation from this storm.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 873341,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "d545e69c17bc81c9b422da57608899ea6061f6e66f3c4857ad0bd5268d044b1e",
+   "narrative_chars": 250,
+   "narrative": "Sensor at the Cheyenne Regional Airport measured the reported wind gust. A Wyoming Department of Transportation sensor along Interstate 25 at Bear Creek or eight miles south of Chugwater measured sustained 40 mph winds during the reported time frame.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 889320,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "78d807122aa6f402ae28a5042a81e0ca183551589d8114389c2dfdecbf5ae959",
+   "narrative_chars": 76,
+   "narrative": "The Jasper County 911 Call Center reported a tree down on Edison Smith Road.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 897151,
+   "stratum": "age",
+   "narrative_sha256": "12a9868e13c92f9fca5df7490dcb1ae05faeaccc1645fa1068e05ed86a9cc69e",
+   "narrative_chars": 105,
+   "narrative": "A 40 year old man drown due to a rip current while trying to save his 16 year old son.  The son survived.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 17,
+     "kind": "casualty",
+     "text": "40 year old man"
+    },
+    {
+     "start": 70,
+     "end": 85,
+     "kind": "casualty",
+     "text": "16 year old son"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 905696,
+   "stratum": "honorific",
+   "narrative_sha256": "a23f31f13963c575e5817792e85ffd35b279d2c4ef6fed5ef14d9b6142669b32",
+   "narrative_chars": 53,
+   "narrative": "Road PR-100 was flooded near Mr. Special Supermarket.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 907258,
+   "stratum": "random",
+   "narrative_sha256": "de29b76a1d4a2e49308ded871d5032a0e0a88ab2469388860831feaaddfce3bc",
+   "narrative_chars": 79,
+   "narrative": "There were several reports of downed trees across portions of Van Buren county.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 917432,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "50ca9435ec01902f58b5779a52d70a307fe81a13abc1c04f6887b23fc38f556c",
+   "narrative_chars": 127,
+   "narrative": "The Emergency Manager reported power outages from trees and large limbs down on power lines. Winds were estimated at 60-70 mph.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 919218,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "afd1203e2a029652ed16cf46ff1f77ab6e3c43ad6f5025f8b08ea991eed67d42",
+   "narrative_chars": 76,
+   "narrative": "Sensor at Rawlins Municipal Airport reported wind gusts in excess of 60 mph.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 921277,
+   "stratum": "age",
+   "narrative_sha256": "f495695c34aca9a7cc21c95d456aac0a0e88cfb132d22df8d147e3eae677e4b0",
+   "narrative_chars": 253,
+   "narrative": "A 14-year old male was struck by lightning at the 1500 block of Neel School Road.  Little information was available, but the injury was not believed to be serious.  Time and location of strike were confirmed by NOAA's NCEI Severe Weather Data Inventory.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 18,
+     "kind": "casualty",
+     "text": "14-year old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 921642,
+   "stratum": "random",
+   "narrative_sha256": "f14c91a66faa23522885b64fb4afcdb5b90388bef78cddb58e4ae31dc4078338",
+   "narrative_chars": 256,
+   "narrative": "Fort Lauderdale-Hollywood International Airport reported a temporary closure due to flooding on the entrance from perimeter road to the arrivals/departures near the cell phone lot this morning. Over 6 inches of rain fell in this area during a 3 day period.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 926659,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "867a52ecc8fe5f68bf28ba9cf55c0e0f91517b8d57e35f6a688cbe332a53b9e2",
+   "narrative_chars": 229,
+   "narrative": "The Bay Waveland Yacht Club (WYCM6) anemometer measured a peak gust of 47 knots. The Weatherflow anemometer on Ship Island measured a peak wind gust of 36 knots. The anemometer on Petit Bois measured a peak wind gust of 41 knots.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 931298,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "61bd3a8e9e11504e52ba2f0daf6b095a6313ae9e3aa1b46b287bf076ad0246c6",
+   "narrative_chars": 191,
+   "narrative": "Wind gusts over 58 mph were measured for several hours in the Sandia/Manzano Mountains. A weather station near Sandia Park measured a peak wind gust of 65 mph behind a fast-moving cold front.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 936530,
+   "stratum": "random",
+   "narrative_sha256": "dd3977c56ddd5886ccab0cc50121c9085c4ddb63670d1ed26a67f9c995d0ec7c",
+   "narrative_chars": 106,
+   "narrative": "Chino Valley received 4-5 inches of snow below 5,000 feet from Friday night to Sunday morning (Jan 23-24).",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 937005,
+   "stratum": "random",
+   "narrative_sha256": "1113ac08015457e56f48710ceb77c195ed94bd9d98e754d2bf4ca61bbd39c07c",
+   "narrative_chars": 65,
+   "narrative": "The wind chill dropped into the zero to -5 degree range at times.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 939955,
+   "stratum": "random",
+   "narrative_sha256": "9094fdc2f6571f8247605d7dd029d3b6b385a8db02b504d790845c98f779969c",
+   "narrative_chars": 77,
+   "narrative": "Gun Barrell Wyoming Department of Transportation site in east Laramie County.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 942798,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "a7d3dd96b04fccbccec10d62639ebc4dd380463d41b91a0f6767c1ca1d5bd8b7",
+   "narrative_chars": 185,
+   "narrative": "Exceptional(D4) drought continued across the entire zone for February.  The Antelope Wells Cooperative Observer reported 0.07 inches of precipitation which was 0.47 inches below normal.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 944604,
+   "stratum": "random",
+   "narrative_sha256": "3809d109f37a058ddf779838cf592c74f11505205a485386e4b263e44c687f10",
+   "narrative_chars": 198,
+   "narrative": "Temperatures fell below freezing around 7:30 PM on the 16th and did not rise back above 32 degrees until around 8:30 AM on the 17th. A low of 31 degrees occurred at the Rancho Los Comitas TWDB site.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 946738,
+   "stratum": "age",
+   "narrative_sha256": "72d319511f1bdb91d1dfe7456b625fa5e5da6e06dcebca7024da1aa96886ec3f",
+   "narrative_chars": 289,
+   "narrative": "Freezing rain across the area produced ice accumulations around a tenth of an inch. The prolonged cold spell led to state wide power outages. A 44 year old man from Alice passed away due to hyperthermia on the 16th. Emergency responders had trouble getting to the man due to the icy roads.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 144,
+     "end": 159,
+     "kind": "casualty",
+     "text": "44 year old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 958554,
+   "stratum": "age",
+   "narrative_sha256": "81811a560dcf9a982074b1988799e525fbfef83cf4a975dad7a8c5ea799e1815",
+   "narrative_chars": 138,
+   "narrative": "A 60 year old oak tree was uprooted 3 miles NNW of Decatur.  Social media report relayed through broadcast media. Time estimated by radar.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": [
+    {
+     "text": "60 year old oak tree"
+    }
+   ]
+  },
+  {
+   "event_id": 961146,
+   "stratum": "random",
+   "narrative_sha256": "cbc44e1108301d72c8a06d5683a593e06cfee3c559d6ec0266eafc8978efd285",
+   "narrative_chars": 51,
+   "narrative": "Numerous trees down across southern Huntingdon Twp.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 962698,
+   "stratum": "random",
+   "narrative_sha256": "1acb7e1c39436d49c6e0553785c56e9e3e6b371c6a4eaa766370f3b6088b719a",
+   "narrative_chars": 46,
+   "narrative": "One tree was knocked down along Lick Run Road.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 965700,
+   "stratum": "random",
+   "narrative_sha256": "e4f51c8ab314f599ea3bf5cd6f7ef6cc7f25940b12d1223c49d1c81c6232c7a7",
+   "narrative_chars": 85,
+   "narrative": "A tree was blown down across Coral Farms Road. The time of damage was based on radar.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 967285,
+   "stratum": "age",
+   "narrative_sha256": "927c2b296ab57982635666f7a13ca09e974839b6bcb5ca70680a7a9874847704",
+   "narrative_chars": 73,
+   "narrative": "A 19 year old male drowned at Fort Morgan as the result of a rip current.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 18,
+     "kind": "casualty",
+     "text": "19 year old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 970692,
+   "stratum": "age",
+   "narrative_sha256": "caf7cc5e433845c7e4c529ef1a65ed5ba6e4d686aa7031cc91ab12417ad90cd2",
+   "narrative_chars": 327,
+   "narrative": "Broadcast media relayed a report of a 17-year-old teenage boy from Georgia struck by lightning at Residents Beach on Marco Island due to a thunderstorm in the vicinity. Injuries were severe and the teen was airlifted to a hospital in Miami. Eleven (11) days later on July 28th, he unfortunately passed away due to his injuries.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 38,
+     "end": 61,
+     "kind": "casualty",
+     "text": "17-year-old teenage boy"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 971942,
+   "stratum": "age",
+   "narrative_sha256": "a74deb6ac61e351f9084a88de90b676170ca41bdc6cb7fa6dfe1be433cad7243",
+   "narrative_chars": 102,
+   "narrative": "A 56 year old male drowned in a rip current on an unmanned beach near Gulf Islands National Sea Shore.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 18,
+     "kind": "casualty",
+     "text": "56 year old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 976211,
+   "stratum": "random",
+   "narrative_sha256": "563044853cb548ad5a0ba8ae2f38ba50bba506a458af7cee6d253bd264b32e6b",
+   "narrative_chars": 90,
+   "narrative": "A trained spotter reported 3 inches of water covering Avenue N by Angelo State University.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 980703,
+   "stratum": "possessive",
+   "narrative_sha256": "ff789816796606c60e6b42086eb75391980e04b0c769ba11c465fccad9cd9bc8",
+   "narrative_chars": 404,
+   "narrative": null,
+   "withheld": true,
+   "labels": [
+    {
+     "start": 387,
+     "end": 391,
+     "kind": "name",
+     "text": "Tilo"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 981002,
+   "stratum": "age",
+   "narrative_sha256": "4782c4f8701434a1095495e07b19c902e57b1daf1dcc1de03d154f544ded0390",
+   "narrative_chars": 278,
+   "narrative": "A 61-year-old man drowned while swimming at Hagg Lake on Saturday August 14th, according to the Washington County Sheriff\ufffd\ufffd\ufffds Office. The sheriff\ufffd\ufffd\ufffds office responded to reports of a swimmer who had gone under water. The high temperature at Hagg lake was 92 degrees on the 14th.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 17,
+     "kind": "casualty",
+     "text": "61-year-old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 981437,
+   "stratum": "age",
+   "narrative_sha256": "4d629cd87ac5e0d3f15ca6b9fe25058fdb8b7db0cfde659cdf6f5237d80f9da5",
+   "narrative_chars": 181,
+   "narrative": "Three people were swept away by rip currents in Playa Escondida, Fajardo. Two people were rescued, however, the third person (a 24 year-old male from Las Piedras, Puerto Rico) died.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 128,
+     "end": 144,
+     "kind": "casualty",
+     "text": "24 year-old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 981620,
+   "stratum": "random",
+   "narrative_sha256": "a08ab8c82927433c239e6baea19bb673335debbfac4cf48dfbc0ad07cac54998",
+   "narrative_chars": 32,
+   "narrative": "Trees down on active power line.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 991390,
+   "stratum": "random",
+   "narrative_sha256": "4584e5f783af8effa902e132ddbfc1cc74ed21aadde212216ae21ace365b1cd1",
+   "narrative_chars": 434,
+   "narrative": "This tornado touched down in extreme northeast Adams County south of Trumbull, crossed through far northwest Clay County before heading into southwest Hamilton County. This intermittent tornado damaged a horse barn south of Trumbull as it began its roughly seven-mile path. As it moved northeast, most of the observable damage was to a couple of irrigation pivots along with a snapped tree. The estimated maximum wind gust was 75 MPH.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 992389,
+   "stratum": "random",
+   "narrative_sha256": "32df294a8ef3e089cb9948c3e7db13f49499b08b8a5c0d31bb73822b016c1bf4",
+   "narrative_chars": 42,
+   "narrative": "Winds gusted 58 to 65 mph across the area.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 992661,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "4705f59eca219fb424b07e78c41fb862276800b4193cc7552b435346e08c1186",
+   "narrative_chars": 157,
+   "narrative": "Emergency Manager in Pitkin County reported an Ice Jam that was breaking up along the Roaring Fork River with large debris and chunks of ice flow downstream.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 994212,
+   "stratum": "age",
+   "narrative_sha256": "8341f488f4bfc3517dc64dc729e3fd0058063eccc85d5ad5af6a40747213b4b3",
+   "narrative_chars": 838,
+   "narrative": "Very strong wind downed a power line into a tree igniting a wildfire around 2215MST Monday, November 15, in the Line Creek area north of Clark. The starting point appeared to be in the 800 block of County Road 1AB. The wildfire rapidly spread through the Line Creek drainage, mainly the north side of the creek, as well as the area around Gunpowder Road as westerly wind gusting between 60 and 80 mph drove the flames eastward. The blaze, which eventually burned at least 300 acres, destroyed three homes, seven outbuildings, and a bridge. The fire was also responsible for the death of a 61-year-old woman who succumbed to smoke inhalation on Tuesday, November 16. Firefighters responded from across northern Park County and southern Montana to get the fire under control. Evacuations occurred for Louis L'Amour Lane and Crossfire Trail.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 589,
+     "end": 606,
+     "kind": "casualty",
+     "text": "61-year-old woman"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 998827,
+   "stratum": "random",
+   "narrative_sha256": "ce3346ed9083846e206ddc45c90d2f4ce5bfb7ec3fd890bc54215aeab1e6e717",
+   "narrative_chars": 1108,
+   "narrative": "On Wednesday, December 15th, the Parker Creek fire started in Oldham county about 4 miles south southwest of Channing, Texas. The fire spread rapidly and Texas A&M Forest Service was called for assistance at 1115CST. Winds were reported gusting up to 80 mph in the area until 1500CST at which point there was a significant drop off. Good recovery in relative humidity, temperature drops and with winds slowing down fire spread was slowed. The fire was burning northeast towards a small farming community called Northcamp. The fire was burning in tall grass and being pushed by strong winds. Texas A&M Forest Service resources on scene include 2 dozers, a motorgrader, and 13 engines, including an Engine strike team from Texas Intrastate Fire Mutual Aid System (TIFMAS). Several roads are closed in the region including Farm to market road 354 and Highway 287. The Parker Creek wildfire consumed 11,066.83 (11,067) acres and there were no reports of any homes damaged or lost by the fire. There were also no reports of any injuries or fatalities. The fire was finally contained on December 17 around 1845CST.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1010933,
+   "stratum": "random",
+   "narrative_sha256": "725bbc019fb2214aa79b3e5574b34f9a36692f080a08ed13bcc927299a00dc8b",
+   "narrative_chars": 181,
+   "narrative": "Temperatures fell into the mid to upper 20s on the 4th and 5th around inland Calhoun County. Wind chill temperatures ranged from 8 to 14 degrees during the morning hours of the 4th.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1016135,
+   "stratum": "random",
+   "narrative_sha256": "c762b7b990e9f714531a9a3905703ebb6e93029765ded681c31553d7ab848bfb",
+   "narrative_chars": 93,
+   "narrative": "Aiken dispatch reported a tree down in the roadway on Columbia Rd in Wagener. Time estimated.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1018829,
+   "stratum": "age",
+   "narrative_sha256": "8fbb61e996185176944fc8e3bc89d61b665d970e264b32f59a7bd0fae4950ce9",
+   "narrative_chars": 248,
+   "narrative": "Ongoing snow and strong winds combined to produce a blizzard. One direct death occurred, a 73 year-old female in the city of Minot who was found near the Minot Post Office, which is located near the intersection of 5th Avenue SW and South Broadway.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 91,
+     "end": 109,
+     "kind": "casualty",
+     "text": "73 year-old female"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1019324,
+   "stratum": "age",
+   "narrative_sha256": "a0da9e5de6a9ae1a9bebfb682d2f9f7337325ddda7887aecb23d02e2e645ccb4",
+   "narrative_chars": 171,
+   "narrative": "A 53 year old drowned while swimming at the beach at Wildwood Crest. This is suspected to be rip current related as the Police Chief described the surf as extremely rough.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 13,
+     "kind": "casualty",
+     "text": "53 year old"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1019736,
+   "stratum": "random",
+   "narrative_sha256": "f95629c7d75b3a3087e6a30392486d492575facb821dbfe67de708d91253c98f",
+   "narrative_chars": 564,
+   "narrative": "This tornado developed about 5 miles southwest of Danvers and tracked north until an outflow boundary caught up with it, then the tornado tracked northeast to 7 miles northwest of Clontarf.  It originated in Swift County, then moved through the southeast corner of Stevens County, then into Pope County, where it dissipated. Several wooden poles with electrical transmission lines were snapped. Irrigation systems were overturned, trees were damaged, and some structural damage to homes and farm outbuildings also resulted. Maximum winds were estimated at 100 mph.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1040092,
+   "stratum": "random",
+   "narrative_sha256": "90afcb17ea393000ab155d9d59dda9824afa798c6751682d33f1fa1ee56464e2",
+   "narrative_chars": 157,
+   "narrative": "The Honey Creek wildfire was discovered at 15:16 CST on the 17th northwest of Concan in Uvalde County. The fire burned until the 27th and consumed 353 acres.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1043682,
+   "stratum": "honorific",
+   "narrative_sha256": "772343694757b6a88cc845e6d1a8c9c7af9531b434797fc4a0d82901b88bf7f7",
+   "narrative_chars": 68,
+   "narrative": "Quarter sized hail was reported at the Mr. Clean Car Wash on Hwy 20.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1052631,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "76946c9ba715abeddc397193c4b5a3d44b9812ca3613ee69eca6202fee4cda84",
+   "narrative_chars": 94,
+   "narrative": "The Weatherflow sensor at Isle of Palms Pier measured a peak wind gust of 38 knots at 5:22 PM.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1061318,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "c882b8a9922d296b42b857c7366d663bf94bbf8cd26760be666eff1575ac9d4a",
+   "narrative_chars": 89,
+   "narrative": "An ASOS station at Clarksville Outlaw Field measured a minimum wind chill of -25 degrees.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1061362,
+   "stratum": "random",
+   "narrative_sha256": "4b0cb096400d00656f95621132206d424f1203ee9927b8b20e7752e6ffc0f683",
+   "narrative_chars": 165,
+   "narrative": "WYDOT site at Halleck Ridge reported this peak wind gust. Elk Mountain and County Road 402 WYDOT sites also reported wind gusts in excess of 58 mph during this time.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1061691,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "03ba0cf1b32e3de191ee3fd8f3019315f45f790a7cbb2da2c825bed08ec87879",
+   "narrative_chars": 64,
+   "narrative": "Monmouth Executive Airport reported dense fog for several hours.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1066233,
+   "stratum": "random",
+   "narrative_sha256": "f746b58057f344ed0add5ca7117c7205cc68de7fbca237ba06c29b81b4d3bbe1",
+   "narrative_chars": 443,
+   "narrative": "Across Perkins County, a long duration of dangerous wind chill values of 30 below or colder began during the early afternoon hours on January 21st and continued until the early morning hours on January 24th. Northerly winds as high as  25 to 35 mph with gusts to around 50 mph occurred January 21st through the 22nd to produce the lowest wind chill values. The Grant AWOS recorded a lowest wind chill of 48 below at 415am MST on December 22nd.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1072788,
+   "stratum": "age",
+   "narrative_sha256": "32e6c34f2c711381c549f9339c8be6186ff6dde3c2bc8ff8e5be629e995889bf",
+   "narrative_chars": 437,
+   "narrative": "The Indialantic Police Department relayed a report of a 24-year-old male from Osceola County who drowned after being caught in a rip current near Wave Crest Ave. in Indialantic. At 1610EST, fire rescue responded to a report of an unresponsive male in the ocean approximately 100-200 yards east of Wave Crest Ave, where he was rescued and resuscitated, but ultimately succumbed to his injuries while being transported to an area hospital.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 56,
+     "end": 72,
+     "kind": "casualty",
+     "text": "24-year-old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1073902,
+   "stratum": "age",
+   "narrative_sha256": "7cec4c61e7c9b536eb9dbaf4d76dae581bfc0275a2f5ac08713d3c3e7c639bf7",
+   "narrative_chars": 460,
+   "narrative": "Dense fog developed during the afternoon of January 15, continuing through much of the day of January 16. At 2:30 AM CST on January 16, a semi-truck traveling westbound on Interstate 94 eleven miles east of Dickinson lost control and jackknifed into the median, with the trailer blocking the westbound passing lane. A 50 year old female from Dickinson, also traveling westbound, died (indirect) when she hit the trailer on the left-rear side and went under it.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 318,
+     "end": 336,
+     "kind": "casualty",
+     "text": "50 year old female"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1080876,
+   "stratum": "age",
+   "narrative_sha256": "185b3bd404b3b2b136ec410b03268103f9b96f7e49c07a4dbe05ab56bf3e3bf0",
+   "narrative_chars": 253,
+   "narrative": "The Brevard County Sheriff's Office reported the body of a 74-year-old male was pulled out of the surf near the intersection of 5th Ave (US-192) & A1A in Indialantic. Attempts to resuscitate the out-of-state visitor from Pottstown, PA were unsuccessful.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 59,
+     "end": 75,
+     "kind": "casualty",
+     "text": "74-year-old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1089587,
+   "stratum": "honorific",
+   "narrative_sha256": "833abf88086a1344568d5f2252741cd1b7e3f745f60fcbde4cdda266256f8201",
+   "narrative_chars": 688,
+   "narrative": null,
+   "withheld": true,
+   "labels": [
+    {
+     "start": 2,
+     "end": 13,
+     "kind": "casualty",
+     "text": "31-year-old"
+    },
+    {
+     "start": 144,
+     "end": 155,
+     "kind": "name",
+     "text": "Mr. Kitburi"
+    },
+    {
+     "start": 157,
+     "end": 167,
+     "kind": "name",
+     "text": "Ms. Jensen"
+    },
+    {
+     "start": 173,
+     "end": 183,
+     "kind": "name",
+     "text": "Ms. Turner"
+    },
+    {
+     "start": 339,
+     "end": 358,
+     "kind": "name",
+     "text": "Benjamin Z. Kitburi"
+    },
+    {
+     "start": 522,
+     "end": 535,
+     "kind": "name",
+     "text": "Persia Jensen"
+    },
+    {
+     "start": 555,
+     "end": 568,
+     "kind": "name",
+     "text": "Jensen Turner"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1090572,
+   "stratum": "random",
+   "narrative_sha256": "39585a365cfd6ae5a0c7796205b0b42327f2aecb5868b76d3e9fdcbfd4e1ffd0",
+   "narrative_chars": 54,
+   "narrative": "A tree of unknown size and condition was knocked over.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1092358,
+   "stratum": "age",
+   "narrative_sha256": "9950b7597dfdd5ec9fe7b8bb6cabc45c82d5b574ce3f55ab534668fd06b41cbc",
+   "narrative_chars": 197,
+   "narrative": "Two brothers from Pierson were rescued from the ocean just north of the Daytona Beach Pier and were transported to the hospital in critical condition. The 22 year-old man succumbed to his injuries.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 155,
+     "end": 170,
+     "kind": "casualty",
+     "text": "22 year-old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1092388,
+   "stratum": "age",
+   "narrative_sha256": "a193f69a37a6962b7ce355a92e49006b21e40ef28d5297dfe800daa14cc56d9c",
+   "narrative_chars": 2548,
+   "narrative": "An Arctic cold front swept through the area shortly before midnight December 23rd. Low pressure along this front tracked over Lake Erie early in the morning on December 23rd and rapidly intensified through the day while slowly lifting northeast across Ontario. With the frontal passage rain changed to snow with temperatures dropping from the upper 30s and lower 40s to sub-zero in about 8 hours. A period of light to moderate snow occurred behind the front across the county through the morning hours of December 23rd before tapering to flurries. The period of snow and rapidly falling temperatures led to a flash freeze and icy conditions on area roadways. While the falling snow became lighter through the daytime hours of December 23rd, winds began increasing during the pre-dawn hours and gusted over 35 MPH through the day. Marion County airport measured a 40 MPH wind gust at 2:52 AM December 23rd before failing. At nearby airports, a 41 MPH gust was clocked at Delaware Municipal at 7:15 AM with 45 MPH gusts recorded in Mansfield three times between 7:22 AM and 1:33 PM. This led to isolated power-outages. Wind gusts very gradually subsided into December 24th, though gusts didn\ufffd\ufffd\ufffdt drop below 30 MPH until that evening. This led to a prolonged period of widespread blowing and drifting snow beginning early in the morning December 23rd and continuing through the afternoon and evening, with some patchy blowing and drifting snow continuing all the way through Christmas Eve. The greatest impact from this storm was to travel due to the flash freeze and extensive blowing and drifting snow, to go along with low visibility. Nearly 150 minor accidents, slide-offs and disabled vehicles were reported throughout the county on December 23rd and 24th. Several of these accidents resulted in at least minor injuries. The Marion County Sheriff declared a Level 3 snow emergency the morning of December 23rd, which closed all roads in the county to non-emergency travel. This was not lifted until the next morning. Wind chills plunged below 0 by 4 AM December 23rd and did not rise above 0 until late in the evening on December 25th. A wind chill of -36F was recorded at 9:00 AM December 23rd on a mesonet station in Marion. Unfortunately, a 65 year old male lost his life due to prolonged exposure to this cold. A number of burst pipes were reported across northern and central Ohio due to this cold, with temperatures remaining in the single digits until Christmas morning. A trained spotter measured 2.5\ufffd\ufffd\ufffd of snow in Marion with this storm.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2246,
+     "end": 2262,
+     "kind": "casualty",
+     "text": "65 year old male"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1095132,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "cc1490a3d52028ebf687da09cc185d38153a89984ff24f781e551b1bea9b2fb8",
+   "narrative_chars": 234,
+   "narrative": "The mesonet site KF7MKL Union Gap measured temperatures at or below freezing between 0415 to 0745 PDT on April 17th. The mesonet station KK7GO-7 Yakima measured temperatures at to below freezing between 0500 to 0745 PDT on April 17th.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1095647,
+   "stratum": "possessive",
+   "narrative_sha256": "e95607d33cdd5e1c6cef387064fad8176bb3d5530a6bac35f1fa89459eb9258e",
+   "narrative_chars": 2351,
+   "narrative": "The National Weather Service in Louisville confirmed an EF-1 tornado in the Pleasure Ridge Park area of western Jefferson County. The tornado touched down just east of Dixie Highway (U.S. Route 31W) at the edge of the railroad tracks, just south of|Blanton Lane and just east of Lowe's home improvement store. The tornado did extensive tree damage, ranging from uprooted large root balls to twisted and snapped trees to a few large branches impaled into the ground.||Trees were facing from a north-northeasterly direction all the way to an east-southeasterly direction. Several trees crushed cars along Mills Drive. Numerous power lines were down, and many homes had shingle, gutter, and fascia damage. Several garages and out buildings sustained roof and siding damage all along Blanton Lane. |Drone photography showed extensive tree damage with several uprooted larger trees. One outbuilding near Oak Valley Drive had its roof |and siding blown 125 yards. Wind speeds in this part of the tornado |were between 90 and 100 mph.||The tornado snapped several hardwood trees along Rosemary Lane, along |with sporadic roofing damage to homes. At a house on the 7600 block of Rosemary Lane, a western facing window was somehow sucked out and thrown back to the northwest, some 30 yards away. The homeowner recounted a huge pressure change |when the tornado hit. ||The tornado intensified on Brooklawn Drive, towards the back portion of the apartments.  One entire roofing section of an apartment complex was picked up and thrown and twisted into the trees on the hill behind. This was the most extensive and drastic amount of damage in the area. In the parking lot east of that building, insulation and building fascia surrounded vehicles.||The furthest east apartment building had half of the south-facing fascia and brick removed. In addition, the back side (eastern portion) of the apartment building had a large portion of the siding and fascia removed.  All of the roof material, siding, and|insulation was thrown and splattered into the trees. Drone photography showed it scattered about from a northeasterly to a southeasterly facing direction. Wind speeds in the Brooklawn apartment complex were 110 mph, a high-end EF-1 rating.||The tornado lifted on top of the hill just behind the last apartment building and before it reached Renwood Boulevard.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1102003,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "a1719c5c83e1bc1f619d088159527633601a02d72d3309a276f791ff36082b5b",
+   "narrative_chars": 91,
+   "narrative": "The public located at the Heavenly Ski Base reported 24-hour snowfall totals of 7.0 inches.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1106718,
+   "stratum": "random",
+   "narrative_sha256": "661479236472a8e4d3dd4fddf475f55eaa14323b8147ac0ef7e41abaf98858a0",
+   "narrative_chars": 56,
+   "narrative": "Public reported 1 inch hail near Alpha via social media.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1108604,
+   "stratum": "possessive",
+   "narrative_sha256": "4bc0fdce7a37b6e7161886b2d27bfc702664a70fc6bd4f9e6989b717f0800d89",
+   "narrative_chars": 108,
+   "narrative": "A wind gust of 55 knots (63 MPH) was measured by a personal weather station at a Co-op Observer's residence.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1113256,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "d00a49ff9f7a24c8fedcb4a2814a5e31de01468a8d8fbd3fc6a99b87e837cc64",
+   "narrative_chars": 69,
+   "narrative": "Orangeburg County Dispatch reported a tree down along Firetower Road.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1116702,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "0e3f0523c0a086f08603db3fb969ce08b610b2ace91a31319048d4149e9bc87f",
+   "narrative_chars": 79,
+   "narrative": "California Highway Patrol reported roadway flooding on Garlock Rd. near SR 395.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1126911,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "50f08d15592a0fa6f24b16424bb1a01fe51d168541e8a3bd7c1926c524c2e55b",
+   "narrative_chars": 1145,
+   "narrative": "Tropical cyclone winds heavily impacted the county with widespread tree, power lines and structural|damage, especially across the western tier of the county on 8/30. Numerous large, healthy live oak trees|were blown down unidirectionally near the Solar Farm City along Interstate 10 just west of the I-75 and I-10|interchange. The damage extended along I-10 for about \ufffd\ufffd mile, but tree damage did not block the|interstate.|At 0750, a mesonet station about 1 mile ESE of Lake City measured a wind gust of 41 mph. At 0755 am, the|Lake City Airport AWOS (KLCQ) measured a wind gust of 45 mph. At 0835 am, the AWOS KLCQ measured a|wind gust of 46 mph. At 0915, the AWOS KLCQ measured a wind gust of 47 mph. At 0959, a mesonet station|at the Suwannee Forestry Center measured a wind gust of 40 mph. At 1035, the AWOS at KLCQ measured a|wind gust of 51 mph. At 1059, the same mesonet station measured a wind gust of 46 mph. At 1330,|broadcast media shared a photo of a large tree blown down onto power lines across Colburn Avenue in Lake|City. A rotten oak tree snapped at the base of the trunk and fell onto a house near Brown St causing roof damage.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1128617,
+   "stratum": "age",
+   "narrative_sha256": "ce5d61ceb86ce1b97987179b31d691d082892a3ce512c2459f0cca7c17867531",
+   "narrative_chars": 133,
+   "narrative": "A 73 year old man was struck and killed by lightning while boating on Lake Anna in Louisa county. Also, a pregnant woman was injured.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 17,
+     "kind": "casualty",
+     "text": "73 year old man"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1130776,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "c82af968ee84e82ed292fb99eaffecc3a2ddebb7b5a6c687c9924f87e905c50d",
+   "narrative_chars": 203,
+   "narrative": "The District Ranger for the U.S. Forest Service in Las Vegas reported half-dollar sized hail at their district office building. Hail damage to the roof was reported with a leak resulting from the damage.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1140090,
+   "stratum": "naive_bigram",
+   "narrative_sha256": "8fc2de9a8772089273f2f04a2c33eb522f91b534233ff4b32ab66741930bb01a",
+   "narrative_chars": 64,
+   "narrative": "Tempest station at Dorset Lane reported a wind gust of 50 knots.",
+   "withheld": false,
+   "labels": [],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1145725,
+   "stratum": "age",
+   "narrative_sha256": "2cd236e4b2d042e08df217d63d82a61d1b718bff0a108a0b45fe31d8035483bd",
+   "narrative_chars": 122,
+   "narrative": "A 17 year-old boy from St Lucie County died when he drowned in a rip current swimming at Sea Turtle Beach in Jensen Beach.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 2,
+     "end": 17,
+     "kind": "casualty",
+     "text": "17 year-old boy"
+    }
+   ],
+   "age_is_not_a_person": []
+  },
+  {
+   "event_id": 1153901,
+   "stratum": "age",
+   "narrative_sha256": "741f34f6c063bab57554137e19e2b4343a57f4d4c698f731d0767b5dd24307f0",
+   "narrative_chars": 771,
+   "narrative": "A two vehicle collision resulted in the death of one of the passengers.  Idaho State Police investigaed a vehicle fatality collision which occurred on Monday, December 4, 2023, at 7:05 A.M. on State Highway 33 at mile marker 57 east of Terreton.||A 2008 Chevrolet Silverado was traveling eastbound on SH33. A 2018 Volvo semi-truck hauling a trailer was traveling westbound on SH33. The Chevrolet crossed the center line where it struck the Volvo head on.||The driver of the Chevrolet, a 23-year-old-man from Terreton, was not wearing a seatbelt and succumbed to his injures at scene. The driver of the semi-truck, a 24-year-old-man from Louisville, KY, was wearing a seatbelt and was transported to a local hospital.  Slick roads were thought to be a contributing factor.",
+   "withheld": false,
+   "labels": [
+    {
+     "start": 487,
+     "end": 502,
+     "kind": "casualty",
+     "text": "23-year-old-man"
+    },
+    {
+     "start": 616,
+     "end": 631,
+     "kind": "casualty",
+     "text": "24-year-old-man"
+    }
+   ],
+   "age_is_not_a_person": []
+  }
+ ],
+ "label_corrections": [
+  {
+   "event_id": 1092388,
+   "what": "a casualty descriptor 900 characters into the narrative was missed on the first labelling pass",
+   "found_by": "the detector disagreeing with the label, graded 2026-10-21"
+  }
+ ]
+}

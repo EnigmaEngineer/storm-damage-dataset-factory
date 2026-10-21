@@ -1,0 +1,43 @@
+{
+  "dataset": "narrative_scrub",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "applied_to_the_release": {
+    "narratives": 336014,
+    "narratives_changed": 708,
+    "name_spans": 15,
+    "casualty_spans": 848
+  },
+  "graded_on_the_labelled_sample": {
+    "rows_graded": 97,
+    "rows_skipped_because_withheld": 0,
+    "per_detector": {
+      "name": {
+        "true_positive": 7,
+        "false_positive": 0,
+        "false_negative": 0,
+        "labelled_spans": 7,
+        "precision_pct": 100.0,
+        "recall_pct": 100.0
+      },
+      "casualty": {
+        "true_positive": 30,
+        "false_positive": 0,
+        "false_negative": 0,
+        "labelled_spans": 30,
+        "precision_pct": 100.0,
+        "recall_pct": 100.0
+      }
+    },
+    "naive_capitalised_bigram_baseline": {
+      "narratives_it_fires_on": 33,
+      "of_those_carrying_no_name": 33,
+      "precision_pct": 0.0
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+ "note": "Written by hand to carry the shapes the two withheld narratives carry. Nobody in here is real.",
+ "stands_in_for": [
+  1089587,
+  980703
+ ],
+ "positive": [
+  {
+   "why": "honorific surname, then the same surname in a full name, then two more with ages",
+   "text": "A 31-year-old swimmer drowned in the ocean off the point when he went into the water with three other people, town police said Wednesday. Mr. Ardwell, Ms. Pellaton, and Ms. Quinbury had been swimming for only a few minutes. Theodore R. Ardwell was already unconscious when he was pulled from the water. His fiancee, Marisol Pellaton, 26, and a friend, Pellaton Quinbury, 32, were able to swim back to shore.",
+   "expect_names": [
+    "Mr. Ardwell",
+    "Ms. Pellaton",
+    "Ms. Quinbury",
+    "Theodore R. Ardwell",
+    "Marisol Pellaton",
+    "Pellaton Quinbury"
+   ],
+   "expect_casualty": [
+    "31-year-old"
+   ]
+  },
+  {
+   "why": "a family surname before a residence",
+   "text": "Flash flooding was reported in the harbour area. A major landslide was also reported in the village in the front of the Benaway's residence.",
+   "expect_names": [
+    "Benaway"
+   ],
+   "expect_casualty": []
+  }
+ ],
+ "negative": [
+  {
+   "why": "a shop sign reads exactly like an honorific",
+   "text": "Road PR-100 was flooded near Mr. Special Supermarket."
+  },
+  {
+   "why": "and so does a car wash",
+   "text": "Quarter sized hail was reported at the Mr. Clean Car Wash on Hwy 20."
+  },
+  {
+   "why": "Dr. is Drive on 269 of the 272 narratives that carry it",
+   "text": "A tree was blown down across the roadway at MS Highway 145 and Dr. Brock Road south of Meridian."
+  },
+  {
+   "why": "a capitalised bigram before a reporting verb is a place, every time in the labelled sample",
+   "text": "Union Pacific Railroad sensor one mile south of Rock River measured the reported wind gust."
+  },
+  {
+   "why": "an agency, same shape",
+   "text": "The Highway Patrol reported a tree down across both lanes."
+  },
+  {
+   "why": "a role rather than a surname before a residence",
+   "text": "A wind gust of 55 knots was measured by a personal weather station at a Co-op Observer's residence."
+  },
+  {
+   "why": "a tree has an age and is not a person",
+   "text": "A 60 year old oak tree was uprooted 3 miles NNW of Decatur."
+  }
+ ]
+}
