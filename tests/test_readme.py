@@ -28,10 +28,60 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / "source.lock.json").read_text())
 
 
+def _join_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "day2-join.json").read_text())
+
+
+def _scrub_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "day2-scrub.json").read_text())
+
+
 def check_the_table_was_parsed_at_all():
     # Without this, a README whose table stopped matching the regex would make every
     # check below pass against an empty mapping.
-    assert len(_readme_table()) == 8, _readme_table()
+    assert len(_readme_table()) == 16, _readme_table()
+
+
+def check_the_county_join_counts():
+    t = _readme_table()
+    j = _join_manifest()
+    assert t["Event county pairs"] == j["event_county_pairs"]
+    assert t["Events resolved to a county"] == j["distinct_events_with_a_county"]
+    assert t["Distinct counties reached"] == j["distinct_counties"]
+
+
+def check_the_unresolved_count_is_the_difference_and_not_a_second_tally():
+    t = _readme_table()
+    assert t["Events resolved to no county"] == t["Event rows"] - t["Events resolved to a county"]
+
+
+def check_the_spc_and_fema_counts():
+    t = _readme_table()
+    j = _join_manifest()
+    assert t["SPC report county rows"] == j["spc"]["report_county_rows"]
+    assert t["FEMA county designations"] == j["fema"]["county_designations"]
+    assert t["Events inside a weather declaration window"] == j["fema"]["distinct_events_weather_incidents"]
+
+
+def check_the_scrub_counts():
+    t = _readme_table()
+    s = _scrub_manifest()["applied_to_the_release"]
+    assert t["Narratives the scrub changes"] == s["narratives_changed"]
+    text = (REPO_ROOT / "README.md").read_text()
+    assert f"{s['name_spans']} name spans and {s['casualty_spans']} casualty spans" in text
+
+
+def check_the_pandemic_share_in_the_prose_matches_the_manifest():
+    share = _join_manifest()["fema"]["pandemic_share_of_all_matches_pct"]
+    text = (REPO_ROOT / "README.md").read_text()
+    assert f"{share} percent" in text, share
+
+
+def check_the_naive_baseline_precision_in_the_prose_matches_the_manifest():
+    base = _scrub_manifest()["graded_on_the_labelled_sample"]["naive_capitalised_bigram_baseline"]
+    text = (REPO_ROOT / "README.md").read_text()
+    assert f"fires {base['narratives_it_fires_on']} times" in text, base
+    assert f"Precision {base['precision_pct']:.0f} percent" in text, base
 
 
 def check_row_and_episode_counts():

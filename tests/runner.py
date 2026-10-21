@@ -18,6 +18,12 @@ if str(REPO_ROOT) not in sys.path:
 MODULES = [
     "tests.test_sources",
     "tests.test_schema",
+    "tests.test_fixtures",
+    "tests.test_geo",
+    "tests.test_spc",
+    "tests.test_fema",
+    "tests.test_joins",
+    "tests.test_scrub",
     "tests.test_manifest",
     "tests.test_readme",
 ]
