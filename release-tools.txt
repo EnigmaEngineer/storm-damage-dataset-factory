@@ -1,0 +1,12 @@
+# Release tooling. Nothing under stormfactory/ imports any of this.
+#
+# NOT named requirements-something.txt on purpose. depcheck grades a requirements file
+# against what the package imports, and dvc is a command line tool rather than an
+# import, so it would be reported as declared and unused every run. requirements.txt
+# stays a list of imports and this is a list of commands.
+#
+# dvc needs its own virtual environment here. It pulls in omegaconf, which pins
+# antlr4-python3-runtime to 4.9.*, and that release has no wheel for Python 3.13 and
+# its source build fails against the system setuptools. A fresh venv with an upgraded
+# setuptools installs it without complaint.
+dvc==3.67.1

@@ -1,5 +1,18 @@
-# 57 MB of NOAA CSV and 28 MB of Parquet. Rebuilt from source.lock.json, never committed.
-data/
+# 82 MB of raw NOAA, SPC and FEMA downloads, and 31 MB of built Parquet. Rebuilt from
+# source.lock.json and reference.lock.json, never committed.
+#
+# The two directories are named separately rather than ignoring data/ outright. DVC
+# works by putting a tracked pointer file NEXT TO the untracked data, so a blanket
+# data/ rule makes data/parquet.dvc git-ignored and dvc add refuses to write it.
+data/raw/
+data/parquet/
+!data/*.dvc
+
+# The DVC cache is a second copy of the Parquet. The local remote is a third.
+/.dvc/cache/
+/.dvc/tmp/
+/dvc-remote/
+
 __pycache__/
 *.pyc
 # dagster dev leaves run storage behind

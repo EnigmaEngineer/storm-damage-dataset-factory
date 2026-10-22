@@ -1,0 +1,4 @@
+# Nothing here yet. The release artifacts are the only things dvc tracks and they
+# are all under data/parquet, so there is nothing inside a tracked output to skip.
+# This file exists so the next person adding an output has somewhere obvious to put
+# an exclusion rather than discovering dvcignore when a build gets slow.
