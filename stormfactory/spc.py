@@ -82,8 +82,13 @@ def read_reports(path: Path, report_type: str) -> pl.DataFrame:
         # events contract made with BEGIN_RANGE one day earlier. SPC changed its format
         # between 2019 and 2020. 2019 carries a plain integer like 617025 and every year
         # after carries a composite like 2001040929-01, which is a date, a time and a
-        # sequence. 29,097 rows parse as an integer and 108,730 do not, so the strict
-        # cast refused and it was right to. Text, and unique within a year only.
+        # sequence, so a strict integer cast refuses it and is right to.
+        #
+        # The split is in measurements/spc-om.json and a check re-derives it, because
+        # the pair stated here before was 29,097 and 108,730 and neither re-derives.
+        # The measured pair over the fifteen committed source files is 29,168 and
+        # 111,557, and the old pair sums to 2,898 fewer rows than the files hold.
+        # Text, because of the composite form.
         pl.col("om").alias("spc_id"),
         pl.lit(report_type).alias("report_type"),
     )
@@ -101,5 +106,9 @@ def read_reports(path: Path, report_type: str) -> pl.DataFrame:
         .filter(pl.col("county_code") > 0)
         .with_columns((pl.col("state_fips") * 1000 + pl.col("county_code")).alias("county_fips"))
         .drop("county_raw", "county_slot")
-        .unique(subset=["spc_id", "report_type", "year", "county_fips"])
+        # maintain_order because polars `unique` is free to return its rows in any
+        # order otherwise, and it does: two calls on one file in one process returned
+        # frames holding the same rows in different orders. An artifact built on that
+        # cannot have a byte hash that means anything.
+        .unique(subset=["spc_id", "report_type", "year", "county_fips"], maintain_order=True)
     )

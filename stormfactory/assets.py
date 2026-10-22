@@ -24,13 +24,12 @@ from dagster import (
     asset_check,
 )
 
-from . import fema, geo, grading, joins, paths, scrub, sources, spc
+from . import digest, fema, geo, grading, integrity, joins, paths, release, scrub, sources, spc, splits
 from .schema import cast_and_derive, read_raw, validate_or_raise
 
-# Bounded on purpose. Five years is enough to block splits by storm and still small
-# enough that a full rebuild is one call. The range widens on a later day once the
-# release machinery is proven, not before.
-YEARS = [2019, 2020, 2021, 2022, 2023]
+# Owned by release.py, because the artifact registry there is built from it and this
+# module imports that one. Re-exported under the name every caller already uses.
+YEARS = release.YEARS
 
 year_partitions = StaticPartitionsDefinition([str(y) for y in YEARS])
 
@@ -61,7 +60,11 @@ def source_lock(context: AssetExecutionContext) -> Output[dict]:
         if not local.exists():
             context.log.info(f"downloading {f.filename}")
             _fetch(f.url, local)
-        entries.append(sources.lock_entry(f, local))
+        # Checked against the gzip stream's own CRC32 and against the byte count the
+        # server reports, BEFORE the hash goes into the lock. Otherwise a truncated
+        # download is hashed as it stands and the lock records that as correct.
+        checked = integrity.check_gzip_source(local, f.url)
+        entries.append({**sources.lock_entry(f, local), "integrity": checked})
 
     lock = {"index_url": sources.INDEX_URL, "years": YEARS, "files": entries}
     paths.lock_path().write_text(json.dumps(lock, indent=2) + "\n")
@@ -85,9 +88,7 @@ def storm_events(context: AssetExecutionContext) -> Output[None]:
     df = cast_and_derive(read_raw(csv_path))
     validate_or_raise(df, year)
 
-    out = paths.partition_path(year)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    df.write_parquet(out, compression="zstd")
+    out = release.write_artifact(f"storm_events_{year}", df)
 
     located = int(df["has_point"].sum())
     return Output(
@@ -204,11 +205,13 @@ def reference_lock(context: AssetExecutionContext) -> Output[dict]:
             "url": zone_file.url, "issued": zone_file.stamp,
             "bytes": local["zones"].stat().st_size,
             "sha256": sources.sha256_of(local["zones"]),
+            "integrity": integrity.check_plain_source(local["zones"], zone_file.url),
         },
         "national_county": {
             "url": geo.COUNTY_URL,
             "bytes": local["counties"].stat().st_size,
             "sha256": sources.sha256_of(local["counties"]),
+            "integrity": integrity.check_plain_source(local["counties"], geo.COUNTY_URL),
         },
     }
     (paths.release_root() / REFERENCE_FILES).write_text(json.dumps(lock, indent=2) + "\n")
@@ -267,9 +270,7 @@ def event_counties() -> Output[dict]:
     pairs = pl.concat(frames)
     stats["resolved"] = pairs["EVENT_ID"].n_unique()
     stats["unresolved"] = stats["events"] - stats["resolved"]
-    out = paths.data_root() / "parquet" / "event_counties" / "part.parquet"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    pairs.write_parquet(out, compression="zstd")
+    release.write_artifact("event_counties", pairs)
     return Output(stats, metadata={k: v for k, v in stats.items()})
 
 
@@ -286,10 +287,10 @@ def spc_reports(context: AssetExecutionContext) -> Output[dict]:
         per_type[f.report_type] = per_type.get(f.report_type, 0) + len(df)
         frames.append(df)
     allr = pl.concat(frames)
-    out = paths.data_root() / "parquet" / "spc_reports" / "part.parquet"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    allr.write_parquet(out, compression="zstd")
-    stats = {"report_county_rows": len(allr), "distinct_reports": allr["spc_id"].n_unique(),
+    release.write_artifact("spc_reports", allr)
+    stats = {"report_county_rows": len(allr),
+             "distinct_om_numbers": allr["spc_id"].n_unique(),
+             "distinct_reports": allr.select(["spc_id", "report_type"]).unique().height,
              **{f"rows_{k}": v for k, v in sorted(per_type.items())}}
     return Output(stats, metadata=stats)
 
@@ -314,9 +315,10 @@ def fema_declarations(context: AssetExecutionContext) -> Output[dict]:
         local.write_text(json.dumps(records, indent=1) + "\n")
 
     df = fema.read_declarations(local)
-    out = paths.data_root() / "parquet" / "fema_declarations" / "part.parquet"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    df.write_parquet(out, compression="zstd")
+    # Sorted on the way out, like every release artifact. The API pages its records
+    # in no stated order and a second download came back shuffled, which made the
+    # Parquet's bytes a property of the download rather than of the data.
+    release.write_artifact("fema_declarations", df)
     stats = {"county_designations": len(df), "disasters": df["disaster_number"].n_unique(),
              "statewide_dropped": fema.statewide_count(local),
              "open_incidents": int(df["incident_end"].is_null().sum())}
@@ -350,8 +352,19 @@ def join_manifest() -> Output[dict]:
         "distinct_counties": ev["county_fips"].n_unique(),
         "pairs_from_a_county_coded_event": ev.filter(pl.col("cz_type") == "C").height,
         "pairs_from_a_zone_coded_event": ev.filter(pl.col("cz_type") == "Z").height,
+        # `distinct_reports` was published here as 134,007 on the day this manifest
+        # was written and that figure counts SPC `om` numbers rather than reports.
+        # SPC reuses an om between report types, 6,526 of them across these five
+        # years, so the key is om plus type and the report count is 140,621. The old
+        # name is kept beside the new one rather than overwritten, because the
+        # figure moved and a reader of the release deserves to see why.
         "spc": {
             "report_county_rows": len(sp),
+            "distinct_om_numbers": sp["spc_id"].n_unique(),
+            "distinct_reports": sp.select(["spc_id", "report_type"]).unique().height,
+            "om_numbers_reused_between_report_types": sp.group_by("spc_id").agg(
+                pl.col("report_type").n_unique().alias("types")
+            ).filter(pl.col("types") > 1).height,
             "distinct_events_with_an_spc_report_the_same_day": spc_hit["EVENT_ID"].n_unique(),
             "matched_pairs": len(spc_hit),
         },
@@ -445,3 +458,216 @@ def day2_manifests_hold_no_wall_time() -> AssetCheckResult:
         text = p.read_text().lower()
         banned += [f"{name}:{w}" for w in ("seconds", "elapsed", "duration", "_ms", "millis", "runtime", "took") if w in text]
     return AssetCheckResult(passed=not banned, metadata={"found": MetadataValue.text(", ".join(banned) or "none")})
+
+
+@asset(deps=[storm_events], description="Every event assigned to train, val and test under three schemes.")
+def event_splits() -> Output[dict]:
+    """The three schemes side by side, so one model can be trained twice.
+
+    One table rather than three, because the comparison the project is for is between
+    columns of one row and a reader should not have to join three files to make it.
+
+    The 26,320 events the county resolution could not place are kept and flagged. They
+    carry a state and an episode, so both grouped schemes can assign them, and nothing
+    county keyed can use them. Dropping them here would hide a quarter of the marine
+    events from a reader who only ever looks at the split table.
+    """
+    frames = []
+    for year in YEARS:
+        frames.append(pl.read_parquet(
+            paths.partition_path(year),
+            columns=["EVENT_ID", "EPISODE_ID", "STATE_FIPS", "STATE", "CZ_TYPE", "EVENT_TYPE"],
+        ))
+    events = pl.concat(frames)
+
+    placed = set(
+        pl.read_parquet(paths.data_root() / "parquet" / "event_counties" / "part.parquet",
+                        columns=["EVENT_ID"])["EVENT_ID"].to_list()
+    )
+    events = events.with_columns(pl.col("EVENT_ID").is_in(list(placed)).alias("has_a_county"))
+
+    events = splits.random_split(events)
+    events = splits.storm_split(events)
+    events = splits.blocked_split(events)
+
+    release.write_artifact("event_splits", events)
+
+    per_scheme = {}
+    for col in ("random_split", "storm_split", "blocked_split"):
+        counts = dict(events.group_by(col).agg(pl.len().alias("n")).iter_rows())
+        per_scheme[col] = {
+            "events": {name: counts.get(name, 0) for name in splits.SPLITS},
+            "episodes_in_more_than_one_split": splits.units_spanning_two_splits(
+                events, "EPISODE_ID", col).height,
+            "states_in_more_than_one_split": splits.units_spanning_two_splits(
+                events, "STATE_FIPS", col).height,
+            "leakage": splits.shared_storm_rate(events, col),
+        }
+
+    manifest = {
+        "dataset": "event_splits",
+        "years": YEARS,
+        "events": events.height,
+        "episodes": events["EPISODE_ID"].n_unique(),
+        "states": events["STATE_FIPS"].n_unique(),
+        "events_without_a_county": int((~events["has_a_county"]).sum()),
+        "targets": splits.TARGETS,
+        "schemes": per_scheme,
+    }
+    p = paths.release_root() / "measurements" / "splits.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(manifest, indent=2) + "\n")
+    return Output(manifest, metadata={
+        "events": events.height,
+        "random_leakage_pct": per_scheme["random_split"]["leakage"]["share_pct"],
+        "storm_leakage_pct": per_scheme["storm_split"]["leakage"]["share_pct"],
+        "blocked_leakage_pct": per_scheme["blocked_split"]["leakage"]["share_pct"],
+    })
+
+
+@asset_check(asset=AssetKey("event_splits"),
+             description="No storm spans two splits under either grouped scheme.")
+def no_storm_spans_two_splits() -> AssetCheckResult:
+    """The check the whole day is for.
+
+    The random column is expected to fail this and is reported rather than asserted,
+    because it is the control. If it ever came back at zero the scheme would not be
+    random and that is worth seeing.
+    """
+    events = pl.read_parquet(release.artifact_path("event_splits"))
+    broken = {}
+    for col in ("storm_split", "blocked_split"):
+        broken[col] = splits.units_spanning_two_splits(events, "EPISODE_ID", col).height
+    control = splits.units_spanning_two_splits(events, "EPISODE_ID", "random_split").height
+    return AssetCheckResult(
+        passed=not any(broken.values()),
+        metadata={
+            "storm_split_episodes_split": broken["storm_split"],
+            "blocked_split_episodes_split": broken["blocked_split"],
+            "random_split_episodes_split_for_reference": control,
+        },
+    )
+
+
+@asset_check(asset=AssetKey("event_splits"),
+             description="The blocked scheme keeps every state whole, which is what blocks it.")
+def blocked_split_keeps_each_state_whole() -> AssetCheckResult:
+    events = pl.read_parquet(release.artifact_path("event_splits"))
+    broken = splits.units_spanning_two_splits(events, "STATE_FIPS", "blocked_split")
+    loose = splits.units_spanning_two_splits(events, "STATE_FIPS", "storm_split").height
+    return AssetCheckResult(
+        passed=broken.height == 0,
+        metadata={
+            "states_split_by_the_blocked_scheme": broken.height,
+            "states_split_by_the_storm_scheme_for_reference": loose,
+        },
+    )
+
+
+@asset_check(asset=AssetKey("event_splits"),
+             description="Every event appears once under every scheme, and in a named split.")
+def every_event_is_assigned_once() -> AssetCheckResult:
+    events = pl.read_parquet(release.artifact_path("event_splits"))
+    problems = []
+    if events["EVENT_ID"].n_unique() != events.height:
+        problems.append("EVENT_ID repeats in the split table")
+    for col in ("random_split", "storm_split", "blocked_split"):
+        if events[col].null_count():
+            problems.append(f"{col} has {events[col].null_count()} unassigned events")
+        stray = sorted(set(events[col].unique().to_list()) - set(splits.SPLITS))
+        if stray:
+            problems.append(f"{col} names splits nobody declared: {stray}")
+    return AssetCheckResult(passed=not problems, metadata={
+        "problems": len(problems), "detail": MetadataValue.text("; ".join(problems) or "none")})
+
+
+@asset(deps=[event_counties, spc_reports, fema_declarations, event_splits],
+       description="Release v0.1, with a byte hash and a writer independent content hash per artifact.")
+def release_manifest() -> Output[dict]:
+    manifest = release.write_manifest()
+    return Output(manifest, metadata={
+        "release": MetadataValue.text(manifest["release"]),
+        "artifacts": len(manifest["artifacts"]),
+        "writers": MetadataValue.text(", ".join(manifest["writers"])),
+    })
+
+
+@asset_check(asset=AssetKey("release_manifest"),
+             description="Every hash and count in the release manifest re-derived from the data.")
+def release_manifest_matches_the_data() -> AssetCheckResult:
+    wrong = release.disagreements()
+    return AssetCheckResult(passed=not wrong, metadata={
+        "disagreements": len(wrong), "detail": MetadataValue.text("; ".join(wrong) or "none")})
+
+
+@asset_check(asset=AssetKey("release_manifest"),
+             description="Refuse a wall time in the release or the split manifest.")
+def day3_manifests_hold_no_wall_time() -> AssetCheckResult:
+    banned = []
+    for name in ("release.json", "splits.json"):
+        p = paths.release_root() / "measurements" / name
+        if not p.exists():
+            continue
+        text = p.read_text().lower()
+        banned += [f"{name}:{w}" for w in ("seconds", "elapsed", "duration", "_ms", "millis", "runtime", "took") if w in text]
+    return AssetCheckResult(passed=not banned, metadata={"found": MetadataValue.text(", ".join(banned) or "none")})
+
+
+OM_FORMS_FIXTURE = "spc_om_forms.csv"
+
+
+def om_form_counts() -> dict:
+    """How the SPC report identifier splits between its two forms.
+
+    Derived off the released artifact rather than off `data/raw`, so it re-derives in
+    a clean clone that has built or pulled the release. The raw files are not in git
+    and a figure that needs them is a figure nobody can check.
+
+    Counted at both grains on purpose. A report touching three counties is three rows
+    here, so the row count and the report count are different questions and the pair
+    published before answered neither.
+    """
+    sp = pl.read_parquet(release.artifact_path("spc_reports"), columns=["spc_id", "report_type"])
+    rows = sp.with_columns(pl.col("spc_id").cast(pl.Int64, strict=False).alias("as_int"))
+    reports = sp.unique().with_columns(pl.col("spc_id").cast(pl.Int64, strict=False).alias("as_int"))
+    return {
+        "report_county_rows": rows.height,
+        "rows_whose_om_is_an_integer": int(rows["as_int"].is_not_null().sum()),
+        "rows_whose_om_is_composite": int(rows["as_int"].is_null().sum()),
+        "distinct_reports": reports.height,
+        "reports_whose_om_is_an_integer": int(reports["as_int"].is_not_null().sum()),
+        "reports_whose_om_is_composite": int(reports["as_int"].is_null().sum()),
+    }
+
+
+@asset(deps=[spc_reports], description="Which form the SPC report identifier takes, and how often.")
+def spc_om_forms() -> Output[dict]:
+    counts = om_form_counts()
+    fixture = (paths.REPO_ROOT / "tests" / "fixtures" / OM_FORMS_FIXTURE)
+    manifest = {
+        "dataset": "spc_om_forms",
+        "years": YEARS,
+        "counts": counts,
+        "fixture": f"tests/fixtures/{OM_FORMS_FIXTURE}",
+        "superseded": {
+            "stated_before": {"integer": 29097, "composite": 108730},
+            "why_it_is_gone": (
+                "neither figure re-derives from the committed sources and the pair does "
+                "not add up to any row count this release holds"
+            ),
+        },
+    }
+    p = paths.release_root() / "measurements" / "spc-om.json"
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(manifest, indent=2) + "\n")
+    return Output(manifest, metadata={**counts, "fixture_rows": len(fixture.read_text().splitlines()) - 1})
+
+
+@asset_check(asset=AssetKey("spc_om_forms"),
+             description="Both om form counts re-derived from the released artifact.")
+def spc_om_form_counts_re_derive() -> AssetCheckResult:
+    stated = json.loads((paths.release_root() / "measurements" / "spc-om.json").read_text())["counts"]
+    live = om_form_counts()
+    wrong = [f"{k} states {v} and the artifact holds {live[k]}" for k, v in stated.items() if live[k] != v]
+    return AssetCheckResult(passed=not wrong, metadata={
+        "disagreements": len(wrong), "detail": MetadataValue.text("; ".join(wrong) or "none")})

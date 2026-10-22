@@ -1,0 +1,63 @@
+{
+  "dataset": "event_splits",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "events": 336014,
+  "episodes": 50411,
+  "states": 69,
+  "events_without_a_county": 26320,
+  "targets": {
+    "train": 0.7,
+    "val": 0.15,
+    "test": 0.15
+  },
+  "schemes": {
+    "random_split": {
+      "events": {
+        "train": 235167,
+        "val": 50123,
+        "test": 50724
+      },
+      "episodes_in_more_than_one_split": 27907,
+      "states_in_more_than_one_split": 67,
+      "leakage": {
+        "test_events": 50724,
+        "test_events_in_a_storm_train_has_seen": 47553,
+        "share_pct": 93.75
+      }
+    },
+    "storm_split": {
+      "events": {
+        "train": 235210,
+        "val": 50402,
+        "test": 50402
+      },
+      "episodes_in_more_than_one_split": 0,
+      "states_in_more_than_one_split": 67,
+      "leakage": {
+        "test_events": 50402,
+        "test_events_in_a_storm_train_has_seen": 0,
+        "share_pct": 0.0
+      }
+    },
+    "blocked_split": {
+      "events": {
+        "train": 235208,
+        "val": 50406,
+        "test": 50400
+      },
+      "episodes_in_more_than_one_split": 0,
+      "states_in_more_than_one_split": 0,
+      "leakage": {
+        "test_events": 50400,
+        "test_events_in_a_storm_train_has_seen": 0,
+        "share_pct": 0.0
+      }
+    }
+  }
+}

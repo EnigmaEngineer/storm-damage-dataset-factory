@@ -1,0 +1,123 @@
+{
+  "release": "v0.1",
+  "digest_version": "digest-v1",
+  "artifacts": {
+    "event_counties": {
+      "path": "parquet/event_counties/part.parquet",
+      "rows": 341869,
+      "columns": 11,
+      "bytes": 1788259,
+      "sha256": "451a0cc97d9fc2cfac8a85dbcffbd94c7e95fafbacaf08b5336084d60c3bee16",
+      "content_sha256": "bf0f8cb65d09b86bba8b21f6a26971da361d96113a1a4608fbb4acd374533fa6",
+      "sort_by": [
+        "EVENT_ID",
+        "county_fips"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "event_splits": {
+      "path": "parquet/event_splits/part.parquet",
+      "rows": 336014,
+      "columns": 10,
+      "bytes": 1476562,
+      "sha256": "fc110abeb83125270bc80d5f9d40f2f7baa2f7f933ec257a1c3840a0ba2234a8",
+      "content_sha256": "3bbbeb3e1f0142fd3f22465aea27d14c1d071776d676679431defef02c933af4",
+      "sort_by": [
+        "EVENT_ID"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "fema_declarations": {
+      "path": "parquet/fema_declarations/part.parquet",
+      "rows": 14039,
+      "columns": 13,
+      "bytes": 74949,
+      "sha256": "8d7d3a47976e2f4abb77d9e2320e046c5b7e920cc564c30f8c7e5154dbd096fc",
+      "content_sha256": "fa9ce096e1796f5cf67ef7e6f4b48512f9625fffb2eb4e0c02ae5554891a785a",
+      "sort_by": [
+        "disaster_number",
+        "county_fips"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "spc_reports": {
+      "path": "parquet/spc_reports/part.parquet",
+      "rows": 141518,
+      "columns": 10,
+      "bytes": 939203,
+      "sha256": "e4bd70c9b35414742a9880c9f84383c22a66dfb532605e72b6f93b468327f415",
+      "content_sha256": "d5d95940dde1200f74e12ed55f1d8a101de429b67783fad0c69f2004d4638bfa",
+      "sort_by": [
+        "spc_id",
+        "report_type",
+        "county_fips"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "storm_events_2019": {
+      "path": "parquet/storm_events/year=2019/part.parquet",
+      "rows": 67864,
+      "columns": 54,
+      "bytes": 5454726,
+      "sha256": "d8da375dab840e0e3e51114c539008701fa0adb64eb8e07735f181a2d0d82cd3",
+      "content_sha256": "a887a7a9435b466adb7bacba9affabef9cb91c7926263b4e68b58f4d0d79eafb",
+      "sort_by": [
+        "EVENT_ID"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "storm_events_2020": {
+      "path": "parquet/storm_events/year=2020/part.parquet",
+      "rows": 61281,
+      "columns": 54,
+      "bytes": 5082752,
+      "sha256": "1c6944099c17aa44f1dbe74f6536ac1c16816ef4e6778067f8337e2ab3952b0a",
+      "content_sha256": "b4bebc84461cd792a51831f40461d33551c7bc3319cef51df10487b2a8854985",
+      "sort_by": [
+        "EVENT_ID"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "storm_events_2021": {
+      "path": "parquet/storm_events/year=2021/part.parquet",
+      "rows": 61389,
+      "columns": 54,
+      "bytes": 5058293,
+      "sha256": "fe3c194e13bd38a71e500d70968557dd44a250ed558f7a3f48f6307c6af6c982",
+      "content_sha256": "bec69a54dbed0cc226ebcf29e2366c929c7a6eed548ae9d3f003108dba81ed71",
+      "sort_by": [
+        "EVENT_ID"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "storm_events_2022": {
+      "path": "parquet/storm_events/year=2022/part.parquet",
+      "rows": 69887,
+      "columns": 54,
+      "bytes": 5385254,
+      "sha256": "5272f3f43f23ec8f0f39828e69ba9529d8dc97baed5930fab4d4c398151822e7",
+      "content_sha256": "17b417cc54f65b05453141847e39d5bc421528e56b4907efcbaa377ee09c6f33",
+      "sort_by": [
+        "EVENT_ID"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "storm_events_2023": {
+      "path": "parquet/storm_events/year=2023/part.parquet",
+      "rows": 75593,
+      "columns": 54,
+      "bytes": 5880833,
+      "sha256": "fc942939dc10a0db6e7f180592ceac4e7df1f333aa2e00b997036a8316490726",
+      "content_sha256": "b843a737754add28eb23c68035a3fdfa25e2afe4e5f6ef07ef217a4f3d236042",
+      "sort_by": [
+        "EVENT_ID"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    }
+  },
+  "writers": [
+    "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+  ],
+  "what_the_byte_hash_proves": "the artifact is the file this release published, under the writer named beside it",
+  "what_the_content_hash_proves": "the artifact holds the same rows, under any Parquet writer"
+}

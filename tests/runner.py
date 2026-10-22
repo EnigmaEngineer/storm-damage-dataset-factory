@@ -25,6 +25,9 @@ MODULES = [
     "tests.test_joins",
     "tests.test_scrub",
     "tests.test_manifest",
+    "tests.test_digest",
+    "tests.test_splits",
+    "tests.test_release",
     "tests.test_readme",
 ]
 

@@ -1,0 +1,26 @@
+{
+  "dataset": "spc_om_forms",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "counts": {
+    "report_county_rows": 141518,
+    "rows_whose_om_is_an_integer": 29333,
+    "rows_whose_om_is_composite": 112185,
+    "distinct_reports": 140621,
+    "reports_whose_om_is_an_integer": 29122,
+    "reports_whose_om_is_composite": 111499
+  },
+  "fixture": "tests/fixtures/spc_om_forms.csv",
+  "superseded": {
+    "stated_before": {
+      "integer": 29097,
+      "composite": 108730
+    },
+    "why_it_is_gone": "neither figure re-derives from the committed sources and the pair does not add up to any row count this release holds"
+  }
+}

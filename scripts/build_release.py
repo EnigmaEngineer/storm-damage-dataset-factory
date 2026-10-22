@@ -58,14 +58,24 @@ def build_joins_and_scrub(ok: bool) -> bool:
         ("event_counties", [assets.event_counties, assets.event_counties_are_unique_and_real]),
         ("join_manifest", [assets.join_manifest, assets.join_manifest_matches_parquet]),
         ("narrative_scrub", [assets.narrative_scrub, assets.day2_manifests_hold_no_wall_time]),
+        ("event_splits", [assets.event_splits, assets.no_storm_spans_two_splits,
+                          assets.blocked_split_keeps_each_state_whole,
+                          assets.every_event_is_assigned_once]),
+        ("spc_om_forms", [assets.spc_om_forms, assets.spc_om_form_counts_re_derive]),
+        ("release_manifest", [assets.release_manifest, assets.release_manifest_matches_the_data,
+                              assets.day3_manifests_hold_no_wall_time]),
     ):
         result = materialize(targets)
         ok = ok and result.success
         print(f"{label}: {'ok' if result.success else 'FAILED'}")
         for ev in result.get_asset_materialization_events():
             md = ev.step_materialization_data.materialization.metadata
-            if md:
-                print("   " + ", ".join(f"{k} {v.value}" for k, v in sorted(md.items())))
+            # `path` is the io manager's own scratch directory and it changes every
+            # run, so printing it makes this output differ between two identical
+            # builds for no reason. Dagster adds it, not an asset.
+            shown = {k: v for k, v in md.items() if k != "path"}
+            if shown:
+                print("   " + ", ".join(f"{k} {v.value}" for k, v in sorted(shown.items())))
         for ev in result.get_asset_check_evaluations():
             print(f"   check {ev.check_name}: {'pass' if ev.passed else 'FAIL'} {dict(ev.metadata)}")
     return ok
