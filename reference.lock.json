@@ -3,11 +3,25 @@
     "url": "https://www.weather.gov/source/gis/Shapefiles/County/bp16ap26.dbx",
     "issued": "16ap26",
     "bytes": 350723,
-    "sha256": "69d3472d4d576b8a4924efb7a43108f7c64111f503e15efd650f43dc617a6f12"
+    "sha256": "69d3472d4d576b8a4924efb7a43108f7c64111f503e15efd650f43dc617a6f12",
+    "integrity": {
+      "route": "full-download",
+      "remote_bytes": 350723,
+      "checked_by": "a second download of the whole file, compared by hash",
+      "why_this_route": "the server sends no Content-Length and ignores a Range header"
+    }
   },
   "national_county": {
     "url": "https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt",
     "bytes": 126639,
-    "sha256": "9f6e5f6eb6ac2f5e9a36d5fd01dec77991bddc75118f748a069441a4782970d6"
+    "sha256": "9f6e5f6eb6ac2f5e9a36d5fd01dec77991bddc75118f748a069441a4782970d6",
+    "integrity": {
+      "route": "remote-tail",
+      "remote_bytes": 126639,
+      "tail_window": 65536,
+      "tail_sha256": "80c3de6fd98d63127d27a508a9028c74226cdefd818d1cda00f04da6415d1cfa",
+      "checked_by": "the remote byte count and the remote tail range",
+      "cannot_catch": "a change in the middle of the file that keeps its length"
+    }
   }
 }

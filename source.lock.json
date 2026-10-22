@@ -14,7 +14,13 @@
       "format_version": "1.0",
       "filename": "StormEvents_details-ftp_v1.0_d2019_c20260323.csv.gz",
       "bytes": 11602648,
-      "sha256": "f5043ecc776818b0feffdf1e0fcbaf63329db0635eab1057c7b8ba00ef332e3b"
+      "sha256": "f5043ecc776818b0feffdf1e0fcbaf63329db0635eab1057c7b8ba00ef332e3b",
+      "integrity": {
+        "route": "gzip-crc",
+        "uncompressed_bytes": 63330688,
+        "checked_by": "gzip crc32 and isize, and the remote byte count",
+        "remote_bytes": 11602648
+      }
     },
     {
       "year": 2020,
@@ -22,7 +28,13 @@
       "format_version": "1.0",
       "filename": "StormEvents_details-ftp_v1.0_d2020_c20260323.csv.gz",
       "bytes": 10444606,
-      "sha256": "895c56fd46991c4d9a135d67558dc4b447a02a2314efac0ace645135b98f9c9d"
+      "sha256": "895c56fd46991c4d9a135d67558dc4b447a02a2314efac0ace645135b98f9c9d",
+      "integrity": {
+        "route": "gzip-crc",
+        "uncompressed_bytes": 59722265,
+        "checked_by": "gzip crc32 and isize, and the remote byte count",
+        "remote_bytes": 10444606
+      }
     },
     {
       "year": 2021,
@@ -30,7 +42,13 @@
       "format_version": "1.0",
       "filename": "StormEvents_details-ftp_v1.0_d2021_c20260323.csv.gz",
       "bytes": 10563953,
-      "sha256": "60c1daf96dbe8eafd48c80df5b70df51a0125ab95d467ee7009a646761d57715"
+      "sha256": "60c1daf96dbe8eafd48c80df5b70df51a0125ab95d467ee7009a646761d57715",
+      "integrity": {
+        "route": "gzip-crc",
+        "uncompressed_bytes": 60617079,
+        "checked_by": "gzip crc32 and isize, and the remote byte count",
+        "remote_bytes": 10563953
+      }
     },
     {
       "year": 2022,
@@ -38,7 +56,13 @@
       "format_version": "1.0",
       "filename": "StormEvents_details-ftp_v1.0_d2022_c20260625.csv.gz",
       "bytes": 11817849,
-      "sha256": "7d6b79d0049a6edec96b061738289daddba90be26fc9afe7b0a6fd617f21452e"
+      "sha256": "7d6b79d0049a6edec96b061738289daddba90be26fc9afe7b0a6fd617f21452e",
+      "integrity": {
+        "route": "gzip-crc",
+        "uncompressed_bytes": 66609288,
+        "checked_by": "gzip crc32 and isize, and the remote byte count",
+        "remote_bytes": 11817849
+      }
     },
     {
       "year": 2023,
@@ -46,7 +70,13 @@
       "format_version": "1.0",
       "filename": "StormEvents_details-ftp_v1.0_d2023_c20260323.csv.gz",
       "bytes": 12888092,
-      "sha256": "713784bed40d9e5a95b1d6240a654f865f3ef97703713105c7b35437270da134"
+      "sha256": "713784bed40d9e5a95b1d6240a654f865f3ef97703713105c7b35437270da134",
+      "integrity": {
+        "route": "gzip-crc",
+        "uncompressed_bytes": 72909648,
+        "checked_by": "gzip crc32 and isize, and the remote byte count",
+        "remote_bytes": 12888092
+      }
     }
   ]
 }
