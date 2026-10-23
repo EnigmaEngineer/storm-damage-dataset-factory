@@ -197,9 +197,10 @@ all 9 artifacts agree bit for bit and by content
 
 ## The splits, and the leak the random one has
 
-The next thing this repo gets is the same baseline trained on a random split and on
-a blocked split. The gap between them is the leakage. So the splits come first and all
-three live in one artifact, `data/parquet/event_splits/part.parquet`.
+The plan here was that one baseline trained on a random cut and on a blocked cut would
+give a gap, and that the gap would be the leakage. It is not, and the section after this
+one has the measurement that says so. The splits still come first and all three live in
+one artifact, `data/parquet/event_splits/part.parquet`.
 
 A storm here is the NOAA episode and not the event. An episode is one weather system
 and its events are that system observed in different places and of different types,
@@ -212,9 +213,11 @@ fans an event out further still.
 | storm_split | the episode | 0 | 67 | 0 percent |
 | blocked_split | the state | 0 | 0 | 0 percent |
 
-The first row is the number worth reading. Under a random cut, 47,553 of the 50,724
-test events sit in a storm that the training set has already seen. A model does not
-have to generalise to score on that. It has to remember.
+The first row is an exposure count and not an effect. Under a random cut, 47,553 of the
+50,724 test events sit in a storm the training set has already seen. That says a model
+is free to remember rather than generalise. It does not say how much remembering is
+worth, and the next section measures that separately because the two turned out to be
+very different sizes.
 
 The spatial unit is the state because it is the coarsest unit every event in this
 release has. 136,316 rows carry no latitude, so any block built from a point drops
@@ -236,6 +239,114 @@ This is a block and not a fence. Two counties either side of a state line are st
 neighbours, so spatial adjacency survives at the borders. The 26,320 events with no
 county are assigned and flagged rather than dropped, because they carry a state and an
 episode and nothing county keyed can use them.
+
+## What the baseline says the random cut actually costs
+
+One model, `HistGradientBoostingClassifier` at a hundred iterations and a fixed seed,
+fitted once per arm. The target is whether an event carries recorded property damage
+above zero. It is read off the parsed damage column, and the 72,920 events with no
+damage value in the source at all are dropped rather than called zeroes, which leaves
+the 263,094 rows the table above already counts. 62,961 of those carry damage.
+
+Fourteen features, all of them properties of the event. Assembled by hand from the
+column list rather than captured from a command, so they sit in a table.
+
+| Group | Columns |
+|---|---|
+| when | month and hour of day and length in minutes |
+| what | event type and zone type |
+| how big | magnitude and its type and the three tornado columns |
+| where | begin latitude and longitude and whether a point exists and whether a county resolved |
+
+The excluded list is published in `measurements/baseline.json` with a reason against
+each name, because a feature list is only honest next to what it refuses.
+
+Two of those refusals decide the result. The event and episode identifiers are out
+because an identifier is how a model memorises a row. Every categorical place label is
+out for a different reason, which covers the state, the forecast office and the county
+name. An unseen state is not a degraded feature. It is an absent one, and every blocked
+test row would carry one, so keeping it would make the gap a measurement of lost feature
+support. A latitude stays, because a tree can still split either side of it.
+
+| Arm | Trained on | Test rows | Test rows sharing a storm with train | ROC AUC | Average precision |
+|---|---|---|---|---|---|
+| random_split | 184,120 | 39,714 | 36,878 | 0.9545 | 0.8909 |
+| storm_split | 183,109 | 40,072 | 0 | 0.9446 | 0.8631 |
+| blocked_split | 178,477 | 43,185 | 0 | 0.9244 | 0.7956 |
+
+The figure the plan asked for is 0.9545 against 0.9244, so a gap of 0.0301 AUC. Three
+things move between those two arms and only one of them is leakage. The test sets hold
+different events. The share of rows whose damage field is absent differs between the
+cuts, 21.7 percent of the random test set against 14.3 of the blocked one. And the
+blocked training set holds none of the states its test set holds.
+
+Splitting the gap at the storm cut separates two of those. The storm cut keeps the state
+mix and removes sibling events, so random to storm is 0.0099 and storm to blocked is
+0.0202. Two thirds of the headline sits in the spatial term, which is the cost of
+predicting into states the model never saw rather than anything a random cut did wrong.
+
+### The matched experiment
+
+None of the three arms above is a controlled comparison, because each one scores a
+different set of rows. So the leak gets its own experiment, and it holds the evaluation
+set and the training size fixed and varies one thing.
+
+The storm cut is the base, because under it a test episode's state is still represented
+in training. Its test episodes are split by the parity of each event's rank inside its
+own episode. The odd ranks are the evaluation set at 23,809 rows and 5,259 positives.
+The even ranks are 16,263 sibling events of those same storms.
+
+Parity is deterministic and it is not random, so the two halves could have differed
+systematically and the gap would have carried that. They do not. The evaluation half is
+22.09 percent positive against 22.18 for the siblings, and the widest
+disagreement between them on any event type is 1.72 percentage points.
+
+| Arm | Training rows | Of which siblings of an evaluation storm | Evaluation rows sharing a storm | ROC AUC | Average precision |
+|---|---|---|---|---|---|
+| without siblings | 183,109 | 0 | 0 | 0.9416 | 0.8554 |
+| with siblings | 183,109 | 16,263 | 19,352 | 0.9449 | 0.8641 |
+| base only, no siblings | 166,846 | 0 | 0 | 0.9428 | 0.8581 |
+
+The first two arms train on 183,109 rows and all three are scored on the
+same 23,809. The leaky arm spends 16,263 of its budget on siblings, so it
+gives up that many rows of the base. A check asserts the first two sizes and all three
+evaluation sets are equal, because the whole claim of the experiment is that nothing
+else moved.
+
+The third arm is there because the first two leave an obvious objection open. The leaky
+arm does not only gain siblings. It also gives up 16,263 ordinary rows, and a reader
+is entitled to ask whether the gap is the siblings arriving or those rows leaving. The
+third arm is that same reduced base with nothing added. Putting 16,263 sibling rows
+on it is worth 0.9428 to 0.9449. Putting the same number of ordinary rows on it is
+worth 0.9428 to 0.9416, which is nothing, and slightly less than nothing. At this
+training size more ordinary rows do not move the score and sibling rows do.
+
+The equal size gap is 0.0033 AUC and 0.0087 average precision. Holding the
+base identical instead gives 0.0021. So the sibling premium sits between those two
+framings, and the headline gap of 0.0301 is around 9 times either of them.
+
+So 93.75 percent of test events sharing a storm with training sounds like a ruined
+benchmark and costs about a third of a point of AUC. Both of those are true and the
+exposure count is the one that reads as alarming.
+
+### What the gap does not settle
+
+The sibling arm gains the same storms and nothing else, so 0.0026 is a measurement of
+sibling membership at this model and this feature list. A model with the narrative text
+in it, or one keyed on the county, has more to memorise and would not inherit this
+number. The figure belongs to the baseline rather than to the dataset.
+
+The ranking metrics are deterministic given the artifacts, the feature list and the
+seed. Two fits in one session agree to four decimal places with threads pinned to one.
+They are not a property of the data alone, and that is measured rather than hedged. The
+same commit on `scikit-learn` 1.9.1 with `numpy` 2.5.3 returns a blocked AUC of 0.9253
+and a matched gap of 0.0026, against 0.9244 and 0.0033 on the declared pair. Same code,
+same rows, same seed. So every figure here names the stack in `requirements.txt` and
+nothing else.
+
+A check cannot re-derive a metric without refitting, which is taking the measurement
+again rather than grading it. So the checks re-derive every count in the manifest and
+compute every gap from the published metrics, and that boundary is in the manifest.
 
 ## Checking a download against something other than itself
 
@@ -303,8 +414,9 @@ typed into this file.
 | SPC om numbers reused between report types | 6,526 |
 | Episodes a random split cuts in two | 27,907 |
 | Episodes a storm split cuts in two | 0 |
+| Events carrying damage above zero | 62,961 |
 | States a blocked split cuts in two | 0 |
-| Checks in the suite | 145 |
+| Checks in the suite | 170 |
 
 `EVENT_ID` is unique across all 336,014 rows and not only within a year, which was
 measured rather than assumed.
@@ -394,8 +506,23 @@ refusal is the feature and it cost one run each time.
   reported rather than zero, and that distinction survives as a null.
 - Nothing is in Cloud Storage yet. The DVC remote in `.dvc/config` is a directory beside
   the repo, and `scripts/dvc_roundtrip.sh` pushes to it and pulls back out of an empty
-  checkout. TODO: swap that url for a GCS bucket once the OIDC trust for CI exists.
+  checkout. That directory is created by whichever machine ran the roundtrip and it is
+  not in git, so a fresh clone has no remote to pull from and has to rebuild the release
+  from the raw sources. The rebuild is one command and takes about a minute. It is still
+  not what a release that claims to be retrievable should need.
+  TODO: swap that url for a GCS bucket once the OIDC trust for CI exists.
   Terraform for the bucket and the service account is not written yet.
+- The leakage gap belongs to this baseline and not to the dataset. 0.0033 AUC is
+  what sibling events of the test storms buy a gradient boosted tree reading fourteen
+  event properties. A model given the narratives, or keyed on the county, has more to memorise
+  and would not inherit that figure.
+- The ranking metrics are not verified across machines. They are deterministic given the
+  artifacts, the feature list and the seed, and two fits in one session agreed to four
+  places with threads pinned to one. Nothing has run them on a second machine.
+- A numeric feature with fewer than two distinct values in a training arm is refused by
+  name rather than binned. All eight satisfy that over the full release. A narrower slice
+  of one year or one state need not. The refusal is what makes that legible instead of a
+  stride error from inside the estimator.
 - The bit-for-bit claim is a claim about one polars build. All nine artifacts rebuild
   byte for byte under `polars 2.0.0`, and the footer carries a build hash rather than
   only a version, so a wheel rebuilt from the same tag would move every byte hash
