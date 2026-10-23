@@ -1,3 +1,13 @@
 # Pinned to what the 2026-10-20 run actually used. Everything else is the standard library.
 dagster==1.13.26
 polars==2.0.0
+# Added for the damage baseline. The classifier handles a null in a numeric column and a
+# categorical column without a preprocessing pipeline, which keeps the feature code
+# readable, and numpy arrives with it rather than being an independent choice.
+#
+# These two are held back from the newest release on purpose. scikit-learn 1.9 and numpy
+# 2.5 publish no wheel for Python 3.10 at all, and pyproject declares 3.10 as the floor.
+# Pinning the newest pair would have made that floor a false claim, so the floor decides
+# the pin and the figures are measured against these.
+scikit-learn==1.7.2
+numpy==2.2.6
