@@ -28,6 +28,7 @@ MODULES = [
     "tests.test_digest",
     "tests.test_splits",
     "tests.test_release",
+    "tests.test_baseline",
     "tests.test_readme",
 ]
 
