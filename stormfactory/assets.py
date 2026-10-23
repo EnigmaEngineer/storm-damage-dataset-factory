@@ -24,7 +24,10 @@ from dagster import (
     asset_check,
 )
 
-from . import digest, fema, geo, grading, integrity, joins, paths, release, scrub, sources, spc, splits
+from . import (
+    baseline, digest, fema, geo, grading, integrity, joins, paths, release, scrub, sources,
+    spc, splits,
+)
 from .schema import cast_and_derive, read_raw, validate_or_raise
 
 # Owned by release.py, because the artifact registry there is built from it and this
@@ -671,3 +674,324 @@ def spc_om_form_counts_re_derive() -> AssetCheckResult:
     wrong = [f"{k} states {v} and the artifact holds {live[k]}" for k, v in stated.items() if live[k] != v]
     return AssetCheckResult(passed=not wrong, metadata={
         "disagreements": len(wrong), "detail": MetadataValue.text("; ".join(wrong) or "none")})
+
+
+def baseline_results() -> dict:
+    """Train the baseline under each cut, then run the matched experiment.
+
+    One function rather than one per arm, because the asset and the check that grades it
+    must not be able to disagree about which measurement was taken.
+    """
+    events = pl.concat([pl.read_parquet(paths.partition_path(year)) for year in YEARS])
+    split_table = pl.read_parquet(release.artifact_path("event_splits"))
+    frame = baseline.feature_frame(events, split_table)
+
+    per_scheme = {name: baseline.score_one_scheme(frame, name) for name in baseline.SCHEMES}
+    matched = baseline.matched_experiment(frame)
+
+    # How much of each cut's test split has no damage value at all. This is the second of
+    # the three things that move between the random arm and the blocked one, and it is
+    # measured off the split table rather than argued about. It goes in the manifest
+    # because the README states it and the data it comes from is not in git.
+    damage = pl.concat(
+        [pl.read_parquet(paths.partition_path(year), columns=["EVENT_ID", baseline.TARGET_SOURCE])
+         for year in YEARS]
+    )
+    with_damage = split_table.join(damage, on="EVENT_ID", how="inner")
+    absent_share = {}
+    for name in baseline.SCHEMES:
+        test = with_damage.filter(pl.col(name) == "test")
+        absent = int(test[baseline.TARGET_SOURCE].null_count())
+        absent_share[name] = {
+            "test_rows": int(test.height),
+            "test_rows_with_no_damage_value": absent,
+            "pct": round(100 * absent / test.height, 1) if test.height else None,
+        }
+
+    stated = per_scheme["random_split"]["roc_auc"] - per_scheme["blocked_split"]["roc_auc"]
+    episode_term = per_scheme["random_split"]["roc_auc"] - per_scheme["storm_split"]["roc_auc"]
+    spatial_term = per_scheme["storm_split"]["roc_auc"] - per_scheme["blocked_split"]["roc_auc"]
+
+    return {
+        "frame": frame,
+        "population": {
+            "events_in_the_release": int(split_table.height),
+            "events_carrying_a_damage_value": int(frame.height),
+            "events_dropped_for_an_absent_damage_value": int(split_table.height - frame.height),
+            "positives": int(frame["label"].sum()),
+            "events_without_a_county_kept": int(frame["has_a_county"].not_().sum()),
+        },
+        "schemes": per_scheme,
+        "random_against_blocked": {
+            "roc_auc_gap": round(stated, 4),
+            "average_precision_gap": round(
+                per_scheme["random_split"]["average_precision"]
+                - per_scheme["blocked_split"]["average_precision"],
+                4,
+            ),
+            "what_moves_between_these_two_arms": [
+                "the test rows are different events",
+                "the share of rows whose damage field is absent differs between the cuts",
+                "the blocked training set holds none of the states the blocked test set holds",
+            ],
+            "test_rows_with_no_damage_value_by_scheme": absent_share,
+        },
+        "decomposition": {
+            "episode_term_random_to_storm": round(episode_term, 4),
+            "spatial_term_storm_to_blocked": round(spatial_term, 4),
+            "note": (
+                "the storm cut keeps the state mix and removes sibling events, so the "
+                "first term is the episode half and the second is the cost of "
+                "extrapolating into unseen states"
+            ),
+        },
+        "matched": matched,
+    }
+
+
+@asset(deps=[event_splits],
+       description="One damage baseline under each cut, and the matched experiment that isolates the leak.")
+def baseline_report() -> Output[dict]:
+    """The day's measurement. Counts and ranking metrics, and no wall time anywhere.
+
+    The headline the plan asked for is the random against blocked gap and it is
+    published with the three things that move between those arms listed beside it. The
+    number that survives a question about what it measures is the matched one.
+    """
+    results = baseline_results()
+    frame = results.pop("frame")
+
+    manifest = {
+        "dataset": "baseline_report",
+        "years": YEARS,
+        "target": {
+            "name": "recorded property damage above zero",
+            "read_from": baseline.TARGET_SOURCE,
+            "absent_values_are_dropped_rather_than_called_zero": True,
+            "why": (
+                "NOAA leaves DAMAGE_PROPERTY empty on 72,920 events and does not say that "
+                "empty means none, so calling them negatives would invent that many labels"
+            ),
+        },
+        "model": {
+            "estimator": "HistGradientBoostingClassifier",
+            "max_iter": 100,
+            "seed": baseline.SEED,
+            "one_model_class_fitted_once_per_arm": True,
+        },
+        "features": {
+            "used": list(baseline.FEATURES),
+            "excluded_with_the_reason": baseline.EXCLUDED,
+        },
+        **results,
+        "what_the_metric_values_rest_on": (
+            "every count here re-derives from the committed artifacts and a check does "
+            "it. the ranking metrics are a deterministic function of those artifacts, "
+            "the feature allowlist and the seed, and two fits in one session agreed to "
+            "four places. they are not verified across machines and a check cannot "
+            "re-derive them without refitting, which is the measurement itself"
+        ),
+    }
+
+    path = paths.release_root() / "measurements" / "baseline.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, indent=2) + "\n")
+
+    return Output(manifest, metadata={
+        "modelled_rows": manifest["population"]["events_carrying_a_damage_value"],
+        "random_auc": manifest["schemes"]["random_split"]["roc_auc"],
+        "storm_auc": manifest["schemes"]["storm_split"]["roc_auc"],
+        "blocked_auc": manifest["schemes"]["blocked_split"]["roc_auc"],
+        "random_against_blocked_gap": manifest["random_against_blocked"]["roc_auc_gap"],
+        "matched_gap": manifest["matched"]["roc_auc_gap"],
+    })
+
+
+@asset_check(asset=AssetKey("baseline_report"),
+             description="Every count in the baseline manifest re-derived from the artifacts.")
+def baseline_counts_re_derive() -> AssetCheckResult:
+    """Counts only, and the gaps as arithmetic over the published metrics.
+
+    Refitting five models to grade the file would be taking the measurement again rather
+    than checking it, so the metric values are not re-derived here and the manifest says
+    so in its own words.
+    """
+    stated = json.loads((paths.release_root() / "measurements" / "baseline.json").read_text())
+
+    events = pl.concat([pl.read_parquet(paths.partition_path(year)) for year in YEARS])
+    split_table = pl.read_parquet(release.artifact_path("event_splits"))
+    frame = baseline.feature_frame(events, split_table)
+
+    wrong = []
+
+    live_population = {
+        "events_in_the_release": int(split_table.height),
+        "events_carrying_a_damage_value": int(frame.height),
+        "events_dropped_for_an_absent_damage_value": int(split_table.height - frame.height),
+        "positives": int(frame["label"].sum()),
+        "events_without_a_county_kept": int(frame["has_a_county"].not_().sum()),
+    }
+    for key, value in stated["population"].items():
+        if live_population[key] != value:
+            wrong.append(f"population.{key} states {value} and the data holds {live_population[key]}")
+
+    for name in baseline.SCHEMES:
+        train = frame.filter(pl.col(name) == "train")
+        test = frame.filter(pl.col(name) == "test")
+        live = {
+            "train_rows": train.height,
+            "train_positives": int(train["label"].sum()),
+            "score_rows": test.height,
+            "score_positives": int(test["label"].sum()),
+            "test_rows_in_a_storm_train_has_seen": baseline.episodes_shared(train, test),
+        }
+        for key, value in live.items():
+            if stated["schemes"][name][key] != value:
+                wrong.append(f"{name}.{key} states {stated['schemes'][name][key]} and the data holds {value}")
+
+    damage = pl.concat(
+        [pl.read_parquet(paths.partition_path(year), columns=["EVENT_ID", baseline.TARGET_SOURCE])
+         for year in YEARS]
+    )
+    with_damage = split_table.join(damage, on="EVENT_ID", how="inner")
+    for name in baseline.SCHEMES:
+        test = with_damage.filter(pl.col(name) == "test")
+        absent = int(test[baseline.TARGET_SOURCE].null_count())
+        live = {
+            "test_rows": int(test.height),
+            "test_rows_with_no_damage_value": absent,
+            "pct": round(100 * absent / test.height, 1) if test.height else None,
+        }
+        said = stated["random_against_blocked"]["test_rows_with_no_damage_value_by_scheme"][name]
+        for key, value in live.items():
+            if said[key] != value:
+                wrong.append(f"{name} absent damage {key} states {said[key]} and the data holds {value}")
+
+    for label, stated_gap, left, right in (
+        ("random_against_blocked.roc_auc_gap",
+         stated["random_against_blocked"]["roc_auc_gap"],
+         stated["schemes"]["random_split"]["roc_auc"],
+         stated["schemes"]["blocked_split"]["roc_auc"]),
+        ("decomposition.episode_term_random_to_storm",
+         stated["decomposition"]["episode_term_random_to_storm"],
+         stated["schemes"]["random_split"]["roc_auc"],
+         stated["schemes"]["storm_split"]["roc_auc"]),
+        ("decomposition.spatial_term_storm_to_blocked",
+         stated["decomposition"]["spatial_term_storm_to_blocked"],
+         stated["schemes"]["storm_split"]["roc_auc"],
+         stated["schemes"]["blocked_split"]["roc_auc"]),
+        ("matched.roc_auc_gap",
+         stated["matched"]["roc_auc_gap"],
+         stated["matched"]["with_siblings"]["roc_auc"],
+         stated["matched"]["without_siblings"]["roc_auc"]),
+    ):
+        if stated_gap != round(left - right, 4):
+            wrong.append(f"{label} states {stated_gap} and the published metrics give {round(left - right, 4)}")
+
+    return AssetCheckResult(passed=not wrong, metadata={
+        "disagreements": len(wrong), "detail": MetadataValue.text("; ".join(wrong) or "none")})
+
+
+@asset_check(asset=AssetKey("baseline_report"),
+             description="The grouped arms trained on no sibling of their own test rows, and the random arm did.")
+def baseline_arms_share_no_storm_except_the_control() -> AssetCheckResult:
+    """The random arm is reported rather than asserted, because it is the control.
+
+    If it ever came back at zero the cut would not be random, which is the same reasoning
+    the split check uses.
+    """
+    stated = json.loads((paths.release_root() / "measurements" / "baseline.json").read_text())
+    grouped = {
+        name: stated["schemes"][name]["test_rows_in_a_storm_train_has_seen"]
+        for name in ("storm_split", "blocked_split")
+    }
+    control = stated["schemes"]["random_split"]["test_rows_in_a_storm_train_has_seen"]
+    matched_honest = stated["matched"]["without_siblings"]["episodes_shared_with_evaluation"]
+    matched_leaky = stated["matched"]["with_siblings"]["episodes_shared_with_evaluation"]
+
+    problems = [f"{k} trained on {v} sibling rows" for k, v in grouped.items() if v]
+    if matched_honest:
+        problems.append(f"the matched honest arm shares {matched_honest} evaluation rows")
+    if not matched_leaky:
+        problems.append("the matched leaky arm shares nothing, so it is not the leaky arm")
+    if not control:
+        problems.append("the random control shares nothing, so it is not a random cut")
+
+    return AssetCheckResult(passed=not problems, metadata={
+        "random_control_rows_sharing_a_storm": control,
+        "storm_split": grouped["storm_split"],
+        "blocked_split": grouped["blocked_split"],
+        "matched_leaky_arm_rows_sharing_a_storm": matched_leaky,
+        "problems": MetadataValue.text("; ".join(problems) or "none"),
+    })
+
+
+@asset_check(asset=AssetKey("baseline_report"),
+             description="The matched arms hold one evaluation set and one training size.")
+def matched_arms_hold_one_evaluation_set_and_one_training_size() -> AssetCheckResult:
+    """The whole claim of the matched experiment is that nothing else moved.
+
+    Equal training size and an identical evaluation set are the two halves of that, so
+    they are asserted rather than described.
+    """
+    matched = json.loads(
+        (paths.release_root() / "measurements" / "baseline.json").read_text()
+    )["matched"]
+    honest, leaky = matched["without_siblings"], matched["with_siblings"]
+
+    problems = []
+    if honest["train_rows"] != leaky["train_rows"]:
+        problems.append(f"training sizes differ, {honest['train_rows']} against {leaky['train_rows']}")
+    if honest["train_rows"] != matched["training_rows"]:
+        problems.append("the stated training budget is not the size either arm trained on")
+    for key in ("score_rows", "score_positives"):
+        if honest[key] != leaky[key]:
+            problems.append(f"the two arms were scored on different rows, {key} differs")
+    if honest["score_rows"] != matched["evaluation_rows"]:
+        problems.append("the stated evaluation size is not the size either arm was scored on")
+
+    return AssetCheckResult(passed=not problems, metadata={
+        "training_rows_each_arm": honest["train_rows"],
+        "evaluation_rows_each_arm": honest["score_rows"],
+        "problems": MetadataValue.text("; ".join(problems) or "none"),
+    })
+
+
+@asset_check(asset=AssetKey("baseline_report"),
+             description="The feature allowlist carries no identifier, no place label and no part of the target.")
+def baseline_features_hold_nothing_excluded() -> AssetCheckResult:
+    """Derived from the two lists in the module rather than from a copy kept here.
+
+    An allowlist is the shape this wants, because a blocklist only refuses what its
+    author thought of. The excluded names are published alongside so a reader can argue
+    with the choice rather than guess at it.
+    """
+    overlap = sorted(set(baseline.FEATURES) & set(baseline.EXCLUDED))
+    stated = json.loads(
+        (paths.release_root() / "measurements" / "baseline.json").read_text()
+    )["features"]
+
+    problems = [f"{name} is on both lists" for name in overlap]
+    if sorted(stated["used"]) != sorted(baseline.FEATURES):
+        problems.append("the manifest's feature list is not the module's")
+    if sorted(stated["excluded_with_the_reason"]) != sorted(baseline.EXCLUDED):
+        problems.append("the manifest's excluded list is not the module's")
+    missing_reason = [k for k, v in baseline.EXCLUDED.items() if not v.strip()]
+    if missing_reason:
+        problems.append(f"excluded with no reason given: {missing_reason}")
+
+    return AssetCheckResult(passed=not problems, metadata={
+        "features": len(baseline.FEATURES),
+        "excluded": len(baseline.EXCLUDED),
+        "problems": MetadataValue.text("; ".join(problems) or "none"),
+    })
+
+
+@asset_check(asset=AssetKey("baseline_report"),
+             description="Refuse a wall time in the baseline manifest.")
+def day4_manifests_hold_no_wall_time() -> AssetCheckResult:
+    path = paths.release_root() / "measurements" / "baseline.json"
+    text = path.read_text().lower() if path.exists() else ""
+    banned = [w for w in ("seconds", "elapsed", "duration", "_ms", "millis", "runtime", "took") if w in text]
+    return AssetCheckResult(passed=not banned, metadata={
+        "found": MetadataValue.text(", ".join(banned) or "none")})

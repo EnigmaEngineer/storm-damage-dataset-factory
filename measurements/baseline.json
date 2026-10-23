@@ -1,0 +1,174 @@
+{
+  "dataset": "baseline_report",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "target": {
+    "name": "recorded property damage above zero",
+    "read_from": "damage_property_usd",
+    "absent_values_are_dropped_rather_than_called_zero": true,
+    "why": "NOAA leaves DAMAGE_PROPERTY empty on 72,920 events and does not say that empty means none, so calling them negatives would invent that many labels"
+  },
+  "model": {
+    "estimator": "HistGradientBoostingClassifier",
+    "max_iter": 100,
+    "seed": 0,
+    "one_model_class_fitted_once_per_arm": true
+  },
+  "features": {
+    "used": [
+      "month",
+      "begin_hour",
+      "event_minutes",
+      "magnitude",
+      "tor_length",
+      "tor_width",
+      "begin_lat",
+      "begin_lon",
+      "event_type",
+      "cz_type",
+      "magnitude_type",
+      "tor_f_scale",
+      "has_point",
+      "has_a_county"
+    ],
+    "excluded_with_the_reason": {
+      "EVENT_ID": "an identifier, and an identifier is how a model memorises a row",
+      "EPISODE_ID": "the storm identifier, which is the thing the cuts exist to hide",
+      "STATE": "a categorical place label, undefined on an unseen state",
+      "STATE_FIPS": "the same label as a number",
+      "WFO": "the forecast office, which is a place label with another name",
+      "CZ_NAME": "the county or zone name, a finer place label",
+      "CZ_FIPS": "the same label as a number",
+      "BEGIN_LOCATION": "a place name",
+      "END_LOCATION": "a place name",
+      "YEAR": "no cut here is temporal, so a year effect cannot generalise to a later year",
+      "DAMAGE_PROPERTY": "the target before parsing",
+      "damage_property_usd": "the target",
+      "DAMAGE_CROPS": "recorded in the same pass as the property damage",
+      "damage_crops_usd": "the same",
+      "INJURIES_DIRECT": "an outcome of the event, not known before it",
+      "INJURIES_INDIRECT": "the same",
+      "DEATHS_DIRECT": "the same",
+      "DEATHS_INDIRECT": "the same",
+      "EVENT_NARRATIVE": "it describes the damage in words",
+      "EPISODE_NARRATIVE": "it describes the storm in words"
+    }
+  },
+  "population": {
+    "events_in_the_release": 336014,
+    "events_carrying_a_damage_value": 263094,
+    "events_dropped_for_an_absent_damage_value": 72920,
+    "positives": 62961,
+    "events_without_a_county_kept": 20753
+  },
+  "schemes": {
+    "random_split": {
+      "train_rows": 184120,
+      "train_positives": 44064,
+      "score_rows": 39714,
+      "score_positives": 9483,
+      "roc_auc": 0.9545,
+      "average_precision": 0.8909,
+      "test_rows_in_a_storm_train_has_seen": 36878
+    },
+    "storm_split": {
+      "train_rows": 183109,
+      "train_positives": 45449,
+      "score_rows": 40072,
+      "score_positives": 8866,
+      "roc_auc": 0.9446,
+      "average_precision": 0.8631,
+      "test_rows_in_a_storm_train_has_seen": 0
+    },
+    "blocked_split": {
+      "train_rows": 178477,
+      "train_positives": 44225,
+      "score_rows": 43185,
+      "score_positives": 8547,
+      "roc_auc": 0.9244,
+      "average_precision": 0.7956,
+      "test_rows_in_a_storm_train_has_seen": 0
+    }
+  },
+  "random_against_blocked": {
+    "roc_auc_gap": 0.0301,
+    "average_precision_gap": 0.0953,
+    "what_moves_between_these_two_arms": [
+      "the test rows are different events",
+      "the share of rows whose damage field is absent differs between the cuts",
+      "the blocked training set holds none of the states the blocked test set holds"
+    ],
+    "test_rows_with_no_damage_value_by_scheme": {
+      "random_split": {
+        "test_rows": 50724,
+        "test_rows_with_no_damage_value": 11010,
+        "pct": 21.7
+      },
+      "storm_split": {
+        "test_rows": 50402,
+        "test_rows_with_no_damage_value": 10330,
+        "pct": 20.5
+      },
+      "blocked_split": {
+        "test_rows": 50400,
+        "test_rows_with_no_damage_value": 7215,
+        "pct": 14.3
+      }
+    }
+  },
+  "decomposition": {
+    "episode_term_random_to_storm": 0.0099,
+    "spatial_term_storm_to_blocked": 0.0202,
+    "note": "the storm cut keeps the state mix and removes sibling events, so the first term is the episode half and the second is the cost of extrapolating into unseen states"
+  },
+  "matched": {
+    "design": "one evaluation set, one training size, sibling membership varied",
+    "evaluation_rows": 23809,
+    "evaluation_positives": 5259,
+    "sibling_rows": 16263,
+    "training_rows": 183109,
+    "the_two_halves_of_each_test_storm": {
+      "evaluation_positive_rate_pct": 22.09,
+      "sibling_positive_rate_pct": 22.18,
+      "event_types_in_the_evaluation_half": 52,
+      "event_types_in_the_sibling_half": 47,
+      "largest_event_type_share_gap_pct": 1.72
+    },
+    "without_siblings": {
+      "train_rows": 183109,
+      "train_positives": 45449,
+      "score_rows": 23809,
+      "score_positives": 5259,
+      "roc_auc": 0.9416,
+      "average_precision": 0.8554,
+      "episodes_shared_with_evaluation": 0
+    },
+    "with_siblings": {
+      "train_rows": 183109,
+      "train_positives": 44983,
+      "score_rows": 23809,
+      "score_positives": 5259,
+      "roc_auc": 0.9449,
+      "average_precision": 0.8641,
+      "episodes_shared_with_evaluation": 19352
+    },
+    "shared_base_only": {
+      "train_rows": 166846,
+      "train_positives": 41376,
+      "score_rows": 23809,
+      "score_positives": 5259,
+      "roc_auc": 0.9428,
+      "average_precision": 0.8581,
+      "episodes_shared_with_evaluation": 0,
+      "note": "the leaky arm's base with no siblings added, so it is smaller than the other two on purpose and separates rows arriving from rows leaving"
+    },
+    "roc_auc_gap": 0.0033,
+    "average_precision_gap": 0.0087
+  },
+  "what_the_metric_values_rest_on": "every count here re-derives from the committed artifacts and a check does it. the ranking metrics are a deterministic function of those artifacts, the feature allowlist and the seed, and two fits in one session agreed to four places. they are not verified across machines and a check cannot re-derive them without refitting, which is the measurement itself"
+}

@@ -64,6 +64,11 @@ def build_joins_and_scrub(ok: bool) -> bool:
         ("spc_om_forms", [assets.spc_om_forms, assets.spc_om_form_counts_re_derive]),
         ("release_manifest", [assets.release_manifest, assets.release_manifest_matches_the_data,
                               assets.day3_manifests_hold_no_wall_time]),
+        ("baseline_report", [assets.baseline_report, assets.baseline_counts_re_derive,
+                             assets.baseline_arms_share_no_storm_except_the_control,
+                             assets.matched_arms_hold_one_evaluation_set_and_one_training_size,
+                             assets.baseline_features_hold_nothing_excluded,
+                             assets.day4_manifests_hold_no_wall_time]),
     ):
         result = materialize(targets)
         ok = ok and result.success
