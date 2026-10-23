@@ -48,10 +48,28 @@ def _om_manifest() -> dict:
     return json.loads((REPO_ROOT / "measurements" / "spc-om.json").read_text())
 
 
+def _baseline_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "baseline.json").read_text())
+
+
+def _readme_arm_rows() -> dict[str, list[str]]:
+    """The six column arm tables, keyed on the first cell.
+
+    The two column regex above cannot see these, which is why they get their own reader
+    rather than being left ungraded because the first one did not match them.
+    """
+    rows = {}
+    for line in (REPO_ROOT / "README.md").read_text().splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")] if line.startswith("|") else []
+        if len(cells) == 6 and cells[0] not in ("Arm", "---"):
+            rows[cells[0]] = cells[1:]
+    return rows
+
+
 def check_the_table_was_parsed_at_all():
     # Without this, a README whose table stopped matching the regex would make every
     # check below pass against an empty mapping.
-    assert len(_readme_table()) == 24, _readme_table()
+    assert len(_readme_table()) == 25, _readme_table()
 
 
 def check_the_county_join_counts():
@@ -250,3 +268,127 @@ def check_the_writer_string_in_the_prose_matches_the_release():
     version = writers[0].split("version ")[1].split(" ")[0]
     assert f"`polars {version}`" in text, writers
     assert f"Polars (python) version {version}" in text, writers
+
+
+def check_the_baseline_arm_tables_were_parsed_at_all():
+    # Six arms across two tables. Without this, a table that stopped matching would
+    # make every check below pass against an empty mapping.
+    rows = _readme_arm_rows()
+    assert sorted(rows) == [
+        "base only, no siblings", "blocked_split", "random_split",
+        "storm_split", "with siblings", "without siblings",
+    ], sorted(rows)
+
+
+def check_the_baseline_population_is_the_damage_row_count_already_published():
+    """The baseline models the rows the README already counts, rather than a second tally."""
+    population = _baseline_manifest()["population"]
+    assert population["events_carrying_a_damage_value"] == _readme_table()["Rows with a property damage figure"]
+    assert population["events_in_the_release"] == _readme_table()["Event rows"]
+    assert (
+        population["events_dropped_for_an_absent_damage_value"]
+        == population["events_in_the_release"] - population["events_carrying_a_damage_value"]
+    )
+
+
+def check_the_positive_count_in_the_table_matches_the_baseline_manifest():
+    assert _readme_table()["Events carrying damage above zero"] == _baseline_manifest()["population"]["positives"]
+
+
+def check_the_scheme_arm_figures_in_the_readme_match_the_manifest():
+    rows = _readme_arm_rows()
+    schemes = _baseline_manifest()["schemes"]
+    for name, stated in schemes.items():
+        cells = rows[name]
+        assert int(cells[0].replace(",", "")) == stated["train_rows"], (name, cells)
+        assert int(cells[1].replace(",", "")) == stated["score_rows"], (name, cells)
+        assert int(cells[2].replace(",", "")) == stated["test_rows_in_a_storm_train_has_seen"], (name, cells)
+        assert float(cells[3]) == stated["roc_auc"], (name, cells)
+        assert float(cells[4]) == stated["average_precision"], (name, cells)
+
+
+def check_the_matched_arm_figures_in_the_readme_match_the_manifest():
+    rows = _readme_arm_rows()
+    matched = _baseline_manifest()["matched"]
+    for label, arm in (
+        ("without siblings", "without_siblings"),
+        ("with siblings", "with_siblings"),
+        ("base only, no siblings", "shared_base_only"),
+    ):
+        cells = rows[label]
+        stated = matched[arm]
+        assert int(cells[0].replace(",", "")) == stated["train_rows"], (label, cells)
+        assert int(cells[2].replace(",", "")) == stated["episodes_shared_with_evaluation"], (label, cells)
+        assert float(cells[3]) == stated["roc_auc"], (label, cells)
+        assert float(cells[4]) == stated["average_precision"], (label, cells)
+    assert int(rows["with siblings"][1].replace(",", "")) == matched["sibling_rows"]
+    assert int(rows["without siblings"][1].replace(",", "")) == 0
+    assert int(rows["base only, no siblings"][1].replace(",", "")) == 0
+    # The third arm is smaller on purpose. If it ever matched the other two it would be
+    # answering the same question they do.
+    assert matched["shared_base_only"]["train_rows"] < matched["training_rows"]
+
+
+def check_every_baseline_gap_in_the_prose_matches_the_manifest():
+    """Each gap is stated once in the prose and each one is read back out of it."""
+    text = (REPO_ROOT / "README.md").read_text()
+    m = _baseline_manifest()
+    for value in (
+        m["random_against_blocked"]["roc_auc_gap"],
+        m["decomposition"]["episode_term_random_to_storm"],
+        m["decomposition"]["spatial_term_storm_to_blocked"],
+        m["matched"]["roc_auc_gap"],
+        m["matched"]["average_precision_gap"],
+    ):
+        assert f"{value:.4f}" in text, value
+
+
+def check_the_absent_damage_shares_in_the_prose_match_the_manifest():
+    text = (REPO_ROOT / "README.md").read_text()
+    by_scheme = _baseline_manifest()["random_against_blocked"]["test_rows_with_no_damage_value_by_scheme"]
+    assert f"{by_scheme['random_split']['pct']} percent" in text, by_scheme
+    assert f"{by_scheme['blocked_split']['pct']}" in text, by_scheme
+
+
+def check_the_matched_evaluation_size_in_the_prose_matches_the_manifest():
+    text = (REPO_ROOT / "README.md").read_text()
+    matched = _baseline_manifest()["matched"]
+    for value in (matched["evaluation_rows"], matched["evaluation_positives"], matched["sibling_rows"]):
+        assert f"{value:,}" in text, value
+
+
+def check_the_readme_does_not_call_a_grouped_cut_leakage_free():
+    """The blocked cut keeps storms whole and that is not the same claim.
+
+    It holds because no episode in these five years crosses a state line, and a state
+    block leaves spatial adjacency at every border. A README saying leakage free would
+    be overclaiming both.
+    """
+    text = (REPO_ROOT / "README.md").read_text().lower()
+    for phrase in ("leakage free", "leakage-free", "no leakage", "zero leakage"):
+        assert phrase not in text, phrase
+
+
+def check_the_feature_count_in_the_prose_is_the_allowlist_length():
+    from stormfactory import baseline as b
+
+    text = (REPO_ROOT / "README.md").read_text()
+    words = {14: "Fourteen", 13: "Thirteen", 15: "Fifteen", 12: "Twelve"}
+    assert f"{words[len(b.FEATURES)]} features" in text, len(b.FEATURES)
+    assert sorted(_baseline_manifest()["features"]["used"]) == sorted(b.FEATURES)
+
+
+def check_the_two_halves_of_each_test_storm_are_described_from_the_manifest():
+    """The parity split is not random, so the README states how alike the halves are."""
+    text = (REPO_ROOT / "README.md").read_text()
+    comp = _baseline_manifest()["matched"]["the_two_halves_of_each_test_storm"]
+    for value in ("evaluation_positive_rate_pct", "sibling_positive_rate_pct",
+                  "largest_event_type_share_gap_pct"):
+        assert str(comp[value]) in text, (value, comp[value])
+
+
+def check_the_fixed_base_gap_in_the_prose_is_the_difference_and_not_a_second_tally():
+    text = (REPO_ROOT / "README.md").read_text()
+    matched = _baseline_manifest()["matched"]
+    fixed = round(matched["with_siblings"]["roc_auc"] - matched["shared_base_only"]["roc_auc"], 4)
+    assert f"{fixed:.4f}" in text, fixed
