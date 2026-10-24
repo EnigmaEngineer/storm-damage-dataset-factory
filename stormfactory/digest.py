@@ -16,6 +16,18 @@ sorted by.
 
 Floats go in as their IEEE-754 bit patterns rather than as decimal text, because a
 decimal rendering is another thing a library version can change underneath you.
+
+Timestamps go in as the integer the column physically holds, which is an offset from
+the Unix epoch in the column's own time unit. A time zone aware column already holds
+that offset in UTC, so nothing is converted and a reader does not have to trust a
+conversion. The dtype string carries the unit and the zone, and the dtype string is
+already in the hash, so the same instants stored in milliseconds and in microseconds
+digest apart, and a naive column never collides with an aware one. That is the same
+rule the module already applies to a signed and an unsigned integer column.
+
+The digest is defined here and nowhere else. No published standard was found that
+canonicalises typed tabular data, so a second implementation has to follow this file
+rather than a specification. The README says so in its limitations.
 """
 
 from __future__ import annotations
@@ -74,6 +86,14 @@ def _column_bytes(name: str, series: pl.Series) -> list[bytes]:
         parts.append(_little_endian("d", present.to_list()))
     elif dtype == pl.Date:
         parts.append(_little_endian("q", [v.toordinal() for v in present.to_list()]))
+    elif isinstance(dtype, pl.Datetime):
+        # The physical integer, not a rendered string and not a Python datetime. For an
+        # aware column polars holds UTC already, so this is the same arithmetic either
+        # way and the zone lives in the dtype string above rather than in the values.
+        epoch = present.dt.epoch(time_unit=dtype.time_unit)
+        if epoch.null_count():
+            raise DigestError(f"{name} lost a value converting to an epoch offset")
+        parts.append(_little_endian("q", epoch.to_list()))
     elif dtype == pl.String:
         texts = [v.encode("utf-8") for v in present.to_list()]
         # Length prefixes rather than a separator. A narrative can contain any

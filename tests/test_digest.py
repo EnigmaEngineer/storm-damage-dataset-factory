@@ -142,3 +142,70 @@ def check_the_digest_version_is_part_of_the_hash():
         assert digest.frame_digest(a, ["id"]) != first
     finally:
         digest.DIGEST_VERSION = original
+
+
+def _timestamps() -> pl.DataFrame:
+    import datetime as dt
+    return pl.DataFrame({
+        "id": [1, 2, 3],
+        "t": [dt.datetime(2021, 8, 29, 21, 11), None, dt.datetime(2021, 9, 2, 14, 0)],
+    })
+
+
+def check_the_digest_has_a_rule_for_a_timestamp():
+    """Added the day imagery metadata arrived. Before it, a Datetime column stopped a
+    release with `the digest has no rule for it`, which is the right refusal and a wall."""
+    digest.frame_digest(_timestamps(), ["id"])
+
+
+def check_an_aware_column_and_a_naive_one_do_not_collide():
+    naive = _timestamps()
+    aware = naive.with_columns(pl.col("t").dt.replace_time_zone("UTC"))
+    assert digest.frame_digest(naive, ["id"]) != digest.frame_digest(aware, ["id"])
+
+
+def check_two_zones_holding_the_same_instants_agree():
+    """A zone is a rendering and the stored value is the instant, so converting one aware
+    column to another zone must not move the digest. The dtype string carries the zone,
+    which is why this is the one timestamp property that has to be asserted rather than
+    assumed."""
+    utc = _timestamps().with_columns(pl.col("t").dt.replace_time_zone("UTC"))
+    chicago = utc.with_columns(pl.col("t").dt.convert_time_zone("America/Chicago")
+                               .dt.convert_time_zone("UTC"))
+    assert digest.frame_digest(utc, ["id"]) == digest.frame_digest(chicago, ["id"])
+
+
+def check_the_same_instants_in_two_time_units_do_not_collide():
+    us = _timestamps()
+    ms = us.with_columns(pl.col("t").cast(pl.Datetime("ms")))
+    assert digest.frame_digest(us, ["id"]) != digest.frame_digest(ms, ["id"])
+
+
+def check_a_null_timestamp_is_not_the_epoch():
+    """The null mask is hashed separately, so a missing timestamp and one at the epoch
+    have to stay apart. They would not if the null were filled before conversion."""
+    import datetime as dt
+    with_null = _timestamps()
+    filled = with_null.with_columns(
+        pl.col("t").fill_null(dt.datetime(1970, 1, 1)))
+    assert digest.frame_digest(with_null, ["id"]) != digest.frame_digest(filled, ["id"])
+
+
+def check_a_timestamp_and_a_date_of_the_same_day_do_not_collide():
+    import datetime as dt
+    stamp = pl.DataFrame({"id": [1], "t": [dt.datetime(2021, 9, 2)]})
+    day = pl.DataFrame({"id": [1], "t": [dt.date(2021, 9, 2)]})
+    assert digest.frame_digest(stamp, ["id"]) != digest.frame_digest(day, ["id"])
+
+
+def check_a_dtype_with_no_rule_is_still_refused():
+    """The Datetime rule was added without widening the refusal, which is the part worth
+    pinning. A digest that silently hashed an unknown dtype would be the defect the
+    refusal exists to prevent."""
+    frame = pl.DataFrame({"id": [1, 2], "t": [[1, 2], [3]]})
+    try:
+        digest.frame_digest(frame, ["id"])
+    except digest.DigestError as exc:
+        assert "no rule" in str(exc)
+        return
+    raise AssertionError("a list column was hashed")
