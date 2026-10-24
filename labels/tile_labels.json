@@ -1,0 +1,1494 @@
+{
+ "project": "storm damage tile pairs, event 979262",
+ "label_config": "labelstudio/label_config.xml",
+ "annotators": [
+  {
+   "id": "run-2026-10-24",
+   "what_it_is": "an automated run reading each tile pair once, not a trained image analyst",
+   "how_the_pass_was_done": "contact sheets built by scripts/contact_sheets.py, tiles drawn at their native 256 pixels, one zoomed pair pulled for the one tile called clear"
+  }
+ ],
+ "shape": "Label Studio task import shape under a tasks key, with the provenance above wrapped round it by this repo",
+ "tasks": [
+  {
+   "data": {
+    "tile_id": "17/32983/53945",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32983/53945",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32983/53945",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 187.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "field at the west edge is bare before and greened up after, which is a crop cycle rather than a storm"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32983/53946",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32983/53946",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32983/53946",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 10.4
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "the large dark parcel is prepared ground before and vegetated after, same shape and same boundary"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32983/53947",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32983/53947",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32983/53947",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 94.1
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "closed canopy in both frames with no gap that was not there before"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32983/53948",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32983/53948",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32983/53948",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 198.6
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "roofs and driveways match frame to frame"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32984/53947",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32984/53947",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32984/53947",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 148.0
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "road, canopy and the two outbuildings all unchanged"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32984/53948",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32984/53948",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32984/53948",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 43.5
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "more vehicles and more graded ground on the commercial lot, which reads as yard use"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32984/53949",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32984/53949",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32984/53949",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 61.0
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "pond edge is further out after, which is a water level and not damage"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32984/53950",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32984/53950",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32984/53950",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 165.5
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "an overgrown parcel is mown after, boundaries unchanged"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32985/53949",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32985/53949",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32985/53949",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 181.1
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "a roofed structure at the north west is gone and the ground under it is bare, and demolition explains it as well as the storm does"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32985/53950",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32985/53950",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32985/53950",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 76.6
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "every roof in the two rows is present and the same colour after"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32985/53951",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32985/53951",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32985/53951",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 27.9
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "the yard north of the highway is cleared and restocked between frames, which could be either"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32985/53952",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32985/53952",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32985/53952",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 132.4
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "canopy over the lots is thinner after and the sun angle differs, so the thinning is not separable from the light"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32986/53951",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32986/53951",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32986/53951",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 214.2
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "clear"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "tarps on several apartment roofs and on a row of houses, none present before, which is the blue roof signature"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32986/53952",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32986/53952",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32986/53952",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 109.7
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "the complex reads lighter after and some canopy is missing, and neither is separable from the exposure"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32986/53953",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32986/53953",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32986/53953",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 5.2
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "woods in both, and the clearing at the east edge has the straight boundary of a cut rather than a track"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32986/53954",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32986/53954",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32986/53954",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 99.4
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "pond and woods unchanged"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32986/53955",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32986/53955",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32986/53955",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 203.9
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "closed canopy in both frames"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32987/53954",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32987/53954",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32987/53954",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 142.7
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "road, houses and canopy all match"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32987/53955",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32987/53955",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32987/53955",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 38.2
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "a red roof is gone and the lot under it is bare, with canopy thinner around it"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32987/53956",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32987/53956",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32987/53956",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 66.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "more ground visible between the trees after, with no single tree obviously down"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32987/53957",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32987/53957",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32987/53957",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 170.9
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "canopy noticeably more open after and the houses under it are unchanged"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32988/53956",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32988/53956",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32988/53956",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 175.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "more roofs visible through the canopy after, which is thinning or light"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32988/53957",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32988/53957",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32988/53957",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 71.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "same thinning across the lots, no debris field that settles it"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32988/53958",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32988/53958",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32988/53958",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 33.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "large bare patches after where the frame before shows canopy, and the edges are straight in places"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32988/53959",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32988/53959",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32988/53959",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 137.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "two houses and the surrounding woods match"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32989/53958",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32989/53958",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32989/53958",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 208.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "a large light roof appears after on ground that was bare, and the parcel beside it is scraped"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32989/53959",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32989/53959",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32989/53959",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 104.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "none"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "the sand pit beside the rail line is the same shape in both"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32989/53960",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32989/53960",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32989/53960",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 0.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "pale scattered material beside the west structure, which could be debris or could be stored stock"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32989/53961",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32989/53961",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32989/53961",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 104.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "canopy thinner over the lots and nothing on the ground decides it"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32989/53962",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32989/53962",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32989/53962",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 209.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "same thinning, roofs unchanged"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32990/53961",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32990/53961",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32990/53961",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 137.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "more open ground between houses after"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32990/53962",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32990/53962",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32990/53962",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 32.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "a wooded strip is bare after, with a straight southern edge"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32990/53963",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32990/53963",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32990/53963",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 71.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "woods replaced by graded sand after, and a lot being cleared looks like this too"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32990/53964",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32990/53964",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32990/53964",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.032,
+    "metres_from_track": 176.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "trees gone across the south of the tile and the grass under them is intact"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32991/53963",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32991/53963",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32991/53963",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.031,
+    "metres_from_track": 170.3
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "vegetation stripped from most of the platted lots, which is the largest change in the corridor and also what lot clearing looks like"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32991/53964",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32991/53964",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32991/53964",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.032,
+    "metres_from_track": 65.8
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "possible"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "the beach reads darker after with a debris line along it, and a single sortie cannot separate that from the tide"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "data": {
+    "tile_id": "17/32991/53965",
+    "post_url": "https://stormscdn.ngs.noaa.gov/20210902a-rgb/17/32991/53965",
+    "pre_url": "https://stormscdn.ngs.noaa.gov/20201030b-rgb/17/32991/53965",
+    "post_collection": "20210902a",
+    "pre_collection": "20201030b",
+    "post_acquired": "2021-09-02",
+    "pre_acquired": "2020-10-30",
+    "metres_per_pixel": 1.032,
+    "metres_from_track": 157.9
+   },
+   "annotations": [
+    {
+     "completed_by": "run-2026-10-24",
+     "result": [
+      {
+       "from_name": "damage",
+       "to_name": "post",
+       "type": "choices",
+       "value": {
+        "choices": [
+         "not_assessable"
+        ]
+       }
+      },
+      {
+       "from_name": "note",
+       "to_name": "post",
+       "type": "textarea",
+       "value": {
+        "text": [
+         "open water apart from a sliver of beach in the north west corner"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,21 @@
+<View>
+  <Header value="Did the storm change this ground?"/>
+  <Text name="tile" value="Tile $tile_id, $metres_per_pixel m per pixel, $metres_from_track m from the surveyed track"/>
+  <View style="display: flex">
+    <View>
+      <Header value="Before, $pre_collection, flown $pre_acquired"/>
+      <Image name="pre" value="$pre_url" zoom="true" zoomControl="true"/>
+    </View>
+    <View>
+      <Header value="After, $post_collection, flown $post_acquired"/>
+      <Image name="post" value="$post_url" zoom="true" zoomControl="true"/>
+    </View>
+  </View>
+  <Choices name="damage" toName="post" choice="single" showInLine="true">
+    <Choice value="none" hint="Nothing in the after frame differs in a way a storm explains"/>
+    <Choice value="possible" hint="Something differs and it could be seasonal or could be damage"/>
+    <Choice value="clear" hint="Structural or vegetation damage visible in the after frame"/>
+    <Choice value="not_assessable" hint="Water or cloud or a missing panel, or too coarse to judge"/>
+  </Choices>
+  <TextArea name="note" toName="post" placeholder="What decided it" rows="2" maxSubmissions="1"/>
+</View>
