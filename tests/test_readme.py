@@ -69,7 +69,7 @@ def _readme_arm_rows() -> dict[str, list[str]]:
 def check_the_table_was_parsed_at_all():
     # Without this, a README whose table stopped matching the regex would make every
     # check below pass against an empty mapping.
-    assert len(_readme_table()) == 25, _readme_table()
+    assert len(_readme_table()) == 41, _readme_table()
 
 
 def check_the_county_join_counts():
@@ -392,3 +392,114 @@ def check_the_fixed_base_gap_in_the_prose_is_the_difference_and_not_a_second_tal
     matched = _baseline_manifest()["matched"]
     fixed = round(matched["with_siblings"]["roc_auc"] - matched["shared_base_only"]["roc_auc"], 4)
     assert f"{fixed:.4f}" in text, fixed
+
+
+def _imagery_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "imagery.json").read_text())
+
+
+def _labels_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "labels.json").read_text())
+
+
+def _imagery_lock() -> dict:
+    return json.loads((REPO_ROOT / "imagery.lock.json").read_text())
+
+
+def check_the_catalogue_counts_in_the_table_match_the_lock():
+    table, lock = _readme_table(), _imagery_lock()
+    assert table["Imagery collections in the catalogue"] == lock["collections"]
+    assert table["Imagery collections declaring a footprint"] == lock["collections_with_a_declared_footprint"]
+    assert table["Storms whose imagery catalogue was read"] == len(lock["storms"])
+
+
+def check_the_catalogue_shape_split_in_the_prose_is_the_difference_and_not_a_second_tally():
+    """The README gives the two shapes as a total and a remainder. A second tally typed
+    beside the first is the thing this whole file exists to stop."""
+    lock = _imagery_lock()
+    bare = lock["collections"] - lock["collections_with_a_declared_footprint"]
+    text = (REPO_ROOT / "README.md").read_text()
+    assert f"The other\n{bare} are only visible as tile layer arguments" in text
+    assert lock["collections_by_catalogue_shape"]["js/app.js"] == bare
+
+
+def check_the_tile_counts_in_the_table_match_the_imagery_manifest():
+    table, img = _readme_table(), _imagery_manifest()
+    assert table["Tiles over the damage track"] == img["grid"]["tiles_in_corridor"]
+    assert table["Tiles over the track at one zoom deeper"] == img["grid"]["tiles_in_corridor_at_the_deeper_zoom"]
+    assert table["Tiles holding both frames"] == img["chosen"]["tiles_with_both_panels"]
+    assert table["Events the catalogue frames before and after"] == img["selection"]["events_with_a_before_and_an_after_candidate"]
+
+
+def check_the_coverage_table_in_the_readme_matches_the_manifest():
+    """Every candidate sortie, its flight date and how much of the track it holds. This
+    is the table the day turned on, so it is re-derived row by row."""
+    img = _imagery_manifest()
+    stated = {}
+    for line in (REPO_ROOT / "README.md").read_text().splitlines():
+        m = re.match(r"\|\s*(\d{8}[a-z])\s*\|\s*(after|before)\s*\|\s*([\d-]+)\s*\|\s*(\d+)\s*\|$", line)
+        if m:
+            stated[m.group(1)] = (m.group(2), m.group(3), int(m.group(4)))
+    assert stated, "the coverage table was not parsed at all"
+    for frame, key in (("after", "post_candidates"), ("before", "pre_candidates")):
+        for c in img["coverage_against_the_declared_footprint"][key]:
+            got = stated.get(c["collection"])
+            assert got is not None, f"{c['collection']} is in the manifest and not in the table"
+            assert got == (frame, c["acquired"], c["tiles_with_imagery"]), f"{c['collection']} states {got}"
+    assert len(stated) == img["coverage_against_the_declared_footprint"]["candidates"]
+
+
+def check_the_chosen_sorties_and_their_gaps_match_the_manifest():
+    img, text = _imagery_manifest(), (REPO_ROOT / "README.md").read_text()
+    for side, word in (("post", "after"), ("pre", "before")):
+        c = img["chosen"][side]
+        assert f"`{c['collection']}`" in text, f"{c['collection']} is not named"
+        days = c["days_after_begin"] if side == "post" else c["days_before_begin"]
+        assert f"flown {days} days {word}" in text, f"the {side} gap of {days} days is not stated"
+
+
+def check_the_label_counts_in_the_table_match_the_label_manifest():
+    table, lab = _readme_table(), _labels_manifest()
+    for label, count in lab["label_counts"].items():
+        assert table[label] == count, f"{label} states {table[label]} and the manifest holds {count}"
+    assert table["Tile pairs labelled"] == lab["annotations"]
+    assert table["Annotators"] == lab["agreement"]["annotators"]
+
+
+def check_the_ambiguous_share_in_the_prose_is_the_sum_and_not_a_second_tally():
+    lab = _labels_manifest()
+    total = lab["label_counts"]["none"] + lab["label_counts"]["possible"]
+    text = (REPO_ROOT / "README.md").read_text()
+    assert f"The other {total} split between" in text
+
+
+def check_the_readme_never_calls_the_agreement_measured():
+    """The one claim on this page that a reader would most want to be a number."""
+    lab = _labels_manifest()
+    assert lab["agreement"]["status"] == "unmeasured"
+    text = (REPO_ROOT / "README.md").read_text().lower()
+    for phrase in ("inter-annotator agreement of", "kappa of", "agreement was measured",
+                   "agreement is 0", "agreement of 0"):
+        assert phrase not in text, f"the readme states {phrase!r} with one annotator"
+    assert "agreement is unmeasured" in text
+
+
+def check_the_zone_field_counts_in_the_table_match_the_manifest():
+    table, tz = _readme_table(), _imagery_manifest()["timezone_field"]
+    assert table["Rows naming a standard zone in summer"] == tz["rows_naming_a_standard_zone_in_june_to_august"]
+    assert table["Rows naming a daylight zone"] == tz["rows_naming_a_daylight_zone"]
+    assert table["Rows naming a daylight zone in winter"] == tz["daylight_named_in_december_to_february"]
+
+
+def check_the_release_version_and_artifact_count_agree_with_the_manifest():
+    rel, table = _release_manifest(), _readme_table()
+    text = (REPO_ROOT / "README.md").read_text()
+    assert table["Release artifacts"] == len(rel["artifacts"])
+    assert f"Release {rel['release']} is ten Parquet artifacts" in text
+    assert rel["supersedes"] in text, "the superseded version is not named"
+    assert f"all {len(rel['artifacts'])} artifacts agree bit for bit" in text
+
+
+def check_the_metres_per_pixel_in_the_prose_matches_the_manifest():
+    img, text = _imagery_manifest(), (REPO_ROOT / "README.md").read_text()
+    assert f"At\n{img['grid']['metres_per_pixel']} m per pixel" in text

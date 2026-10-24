@@ -8,9 +8,11 @@ partition, and a partition that fails its contract is never written.
 python scripts/build_release.py
 ```
 
-Release v0.1 is nine Parquet artifacts. None of them are in git. What git carries is
+Release v0.2 is ten Parquet artifacts. None of them are in git. What git carries is
 `measurements/release.json` and one DVC pointer, and between them they are enough to
-say whether a rebuild produced the same dataset.
+say whether a rebuild produced the same dataset. v0.1 was nine artifacts and the
+imagery layer is the tenth, so the version moved rather than the name covering two
+different datasets.
 
 ## What is real and what is synthetic
 
@@ -25,8 +27,9 @@ contract's refusals and they never reach a Parquet file.
 
 The Storm Events layer for five storm years, 2019 through 2023. Storm Prediction
 Center reports and OpenFEMA declarations joined to it by county and date. A scrub of
-the personal detail in the narratives. Release v0.1 under DVC, with three train and
-test splits beside it. Imagery tiles come later.
+the personal detail in the narratives. Release v0.2 under DVC, with three train and
+test splits beside it. Aerial imagery tiles over one event's damage track, before and
+after, and a labelling pass over them.
 
 The asset graph. This is a drawing and no command prints it, so it is indented
 rather than fenced.
@@ -136,7 +139,7 @@ identical rows.
 
 So each artifact in `measurements/release.json` carries two hashes.
 
-`sha256` is over the file's bytes. It says whether this is the file v0.1 published,
+`sha256` is over the file's bytes. It says whether this is the file the release published,
 and it only reproduces under the writer named beside it.
 
 `content_sha256` is computed in `stormfactory/digest.py` from the rows themselves. It
@@ -157,7 +160,7 @@ SAME writer are a finding, and that is what the first rebuild found.
 
 ## What the first rebuild found
 
-Seven of nine artifacts rebuilt bit for bit in a clean clone. Two did not, and the
+Seven of the nine artifacts v0.1 published rebuilt bit for bit in a clean clone. Two did not, and the
 polars build was identical on both sides, so the writer was not the reason.
 
 `spc_reports` and `fema_declarations` held exactly the same rows in a different order.
@@ -177,22 +180,25 @@ The row order of a published artifact is a property of the data and of nothing e
 `unique` also got `maintain_order=True`, so the function is deterministic on its own
 rather than only through the writer.
 
-After that, all nine artifacts rebuild bit for bit.
+After that, every artifact rebuilds bit for bit.
 
 ```
 python3 scripts/verify_rebuild.py ../clean-clone
-release v0.1 against the rebuild at ../clean-clone
+release v0.2 against the rebuild at ../clean-clone
 digest digest-v1 against digest-v1
   event_counties       same data, same bytes, rows 341869 against 341869
   event_splits         same data, same bytes, rows 336014 against 336014
   fema_declarations    same data, same bytes, rows 14039 against 14039
+  imagery_tiles        same data, same bytes, rows 37 against 37
   spc_reports          same data, same bytes, rows 141518 against 141518
   storm_events_2019    same data, same bytes, rows 67864 against 67864
   storm_events_2020    same data, same bytes, rows 61281 against 61281
   storm_events_2021    same data, same bytes, rows 61389 against 61389
   storm_events_2022    same data, same bytes, rows 69887 against 69887
   storm_events_2023    same data, same bytes, rows 75593 against 75593
-all 9 artifacts agree bit for bit and by content
+writers here:    Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)
+writers there:   Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)
+all 10 artifacts agree bit for bit and by content
 ```
 
 ## The splits, and the leak the random one has
@@ -348,6 +354,113 @@ A check cannot re-derive a metric without refitting, which is taking the measure
 again rather than grading it. So the checks re-derive every count in the manifest and
 compute every gap from the published metrics, and that boundary is in the manifest.
 
+## The imagery, and why a declared footprint picked the wrong sortie
+
+NOAA's National Geodetic Survey flies aerial imagery after a landfalling storm and
+publishes each sortie as a tile pyramid. The catalogue across 28 storms holds
+208 collections, and 115 of them declare a bounding box. The other
+93 are only visible as tile layer arguments inside the viewer's own script, because
+the older storms publish no service document at all. Both shapes are parsed and each
+collection records which one it came from.
+
+The event is tornado 979262. An EF0 that crossed Hancock County in
+Mississippi during Hurricane Ida. It is the highest recorded property damage among
+release events that hold a point and that the catalogue can supply both a before frame
+and an after frame for, which is 26 events in all. That count is a lower bound. The
+candidate pass prefilters on the declared box, because probing coverage for every event
+in the release would be hundreds of thousands of requests, so the 93 collections that
+publish no footprint can never put an event into it. NOAA surveyed it remotely from
+satellite imagery and put street names in the narrative, so the ground truth for this one
+is unusually specific about where to look.
+
+The grid is cut along the surveyed track rather than boxed around it. A tile is kept when
+its centre is within half the surveyed path width plus half a tile of the line from the
+begin point to the end point, which is 223.4 m here, and that leaves 37 tiles at zoom 17.
+
+**Every one of the 7 candidate sorties declares a footprint containing the whole track.
+Measured coverage over those 37 tiles ranges from none of them to all of them.**
+
+| Collection | Frame | Flown | Tiles held of 37 |
+|---|---|---|---|
+| 20210902a | after | 2021-09-02 | 37 |
+| 20210831b | after | 2021-08-31 | 9 |
+| 20210831a | after | 2021-08-31 | 0 |
+| 20210902b | after | 2021-09-02 | 0 |
+| 20201030b | before | 2020-10-30 | 37 |
+| 20201029c | before | 2020-10-29 | 27 |
+| 20201029a | before | 2020-10-29 | 18 |
+
+A declared box is the hull of a sortie's flight lines, so most of the box can hold no
+imagery. The tile server does not help either. It answers a tile it has no imagery for
+with a redirect to a transparent placeholder and an HTTP 200, so a run reading status
+codes concludes it has imagery everywhere. The placeholder is identified by its hash,
+measured once and written into `imagery.lock.json`, and a tile matching it is never
+written to disk.
+
+Selection asks with a HEAD, because the redirect survives one and probing every
+candidate with a GET would pull several collections of imagery to keep one. The chosen
+pair is then fetched and hashed, and the two verdicts are compared over every tile. They
+agree on all of them, which is what makes the cheap question safe to select on.
+
+The sortie this release uses is `20210902a`, flown 3 days after the event. The before
+frame is `20201030b`, flown 304 days before it. **Choosing by date rather than by measured
+coverage would have taken `20210831b`, two days after the event, and produced a project
+with 9 answerable tiles instead of 37.** Coverage is ranked first and the date only breaks
+a tie.
+
+The before frame is itself a storm sortie. NOAA does not fly a county for no reason, so
+the only pre-event imagery at this resolution is the response to an earlier storm, and
+here that is Hurricane Zeta. Before means before Ida. It does not mean undamaged.
+
+## The labelling project, and the agreement that is not reported
+
+The labelling unit is a tile pair and not a tile. An annotator looking at the after frame
+alone cannot tell a roof that lost its shingles from a roof that was always that colour.
+`labelstudio/label_config.xml` puts the two frames side by side and asks one question with
+four answers, and `labels/tile_labels.json` is the pass over all 37 answerable tiles.
+
+| Label | Tiles |
+|---|---|
+| none | 15 |
+| possible | 20 |
+| clear | 1 |
+| not_assessable | 1 |
+
+**Agreement is unmeasured and it will stay that way until a second annotator exists.**
+There is one, so there is no second set of labels to agree with, and a single annotator
+scored against themselves is not a reliability figure. `labelling.agreement` returns the
+refusal rather than a number, an asset check asserts that it does, and `cohens_kappa` is
+written and tested against fixtures so the path is real code rather than a promise.
+
+The one annotator is an automated run, which is recorded in the export beside the labels.
+These are a worked example of the path from sortie to project to graded sample. They are
+not an expert ground truth and nothing here treats them as one.
+
+The distribution is the honest result. One tile carries tarps across an apartment roof and
+a row of houses, which is the blue roof signature and is not ambiguous. One is open water.
+The other 35 split between nothing a storm explains and a difference that could be
+damage or could be the ten months and the different sun angle between the two frames. At
+1.0313 m per pixel a house is about fifteen pixels across, and thinning canopy beside an
+intact roof is exactly the case a single pass cannot settle.
+
+## The timestamp, and what the zone field is worth
+
+`event_begin_utc` is the first time zone aware column any artifact here carries, and it is
+the reason `digest.py` grew a rule for timestamps before the artifact was written.
+
+NOAA writes the local clock time in `BEGIN_DATE_TIME` and names the zone in `CZ_TIMEZONE`
+as an abbreviation with an offset, `CST-6`. The offset is applied literally and it is not
+corrected, because the field is wrong in both directions and no correction derived from it
+would be right. 130,942 rows name a standard zone on a June to August date, which is
+daylight time across most of the country. 282 rows name a daylight zone, and 103 of
+those sit in December to February, where no daylight offset exists at all.
+
+So the column is the instant under the offset the row states. For this event that reads
+2021-08-30T03:11:00+00:00 from a local 29-AUG-21 21:11:00 and a stated CST-6, and late August in
+Mississippi is daylight time, so the true instant is likely an hour earlier. That is
+within the gap between the event and the sortie by three orders of magnitude, so it
+changes nothing here and it would matter to anything joining on an hour.
+
 ## Checking a download against something other than itself
 
 Both lock files were written by hashing whatever was already on disk. That is worth
@@ -407,8 +520,8 @@ typed into this file.
 | FEMA county designations | 14,039 |
 | Events inside a weather declaration window | 25,745 |
 | Narratives the scrub changes | 708 |
-| Release artifacts | 9 |
-| Release artifact bytes | 31,140,831 |
+| Release artifacts | 10 |
+| Release artifact bytes | 31,153,566 |
 | States and territories | 69 |
 | SPC distinct reports | 140,621 |
 | SPC om numbers reused between report types | 6,526 |
@@ -416,7 +529,19 @@ typed into this file.
 | Episodes a storm split cuts in two | 0 |
 | Events carrying damage above zero | 62,961 |
 | States a blocked split cuts in two | 0 |
-| Checks in the suite | 170 |
+| Imagery collections in the catalogue | 208 |
+| Imagery collections declaring a footprint | 115 |
+| Storms whose imagery catalogue was read | 28 |
+| Events the catalogue frames before and after | 26 |
+| Tiles over the damage track | 37 |
+| Tiles over the track at one zoom deeper | 102 |
+| Tiles holding both frames | 37 |
+| Tile pairs labelled | 37 |
+| Annotators | 1 |
+| Rows naming a standard zone in summer | 130,942 |
+| Rows naming a daylight zone | 282 |
+| Rows naming a daylight zone in winter | 103 |
+| Checks in the suite | 216 |
 
 `EVENT_ID` is unique across all 336,014 rows and not only within a year, which was
 measured rather than assumed.
@@ -523,7 +648,7 @@ refusal is the feature and it cost one run each time.
   name rather than binned. All eight satisfy that over the full release. A narrower slice
   of one year or one state need not. The refusal is what makes that legible instead of a
   stride error from inside the estimator.
-- The bit-for-bit claim is a claim about one polars build. All nine artifacts rebuild
+- The bit-for-bit claim is a claim about one polars build. Every artifact rebuilds
   byte for byte under `polars 2.0.0`, and the footer carries a build hash rather than
   only a version, so a wheel rebuilt from the same tag would move every byte hash
   while every content digest held. The content digest is the one that survives.
@@ -538,17 +663,47 @@ refusal is the feature and it cost one run each time.
   independent of the Parquet writer and completely dependent on this repo. No other
   tool can verify a `content_sha256` without reimplementing those rules, so it proves
   a rebuild here agrees with a release here and it is not a portable identifier.
-- `digest.py` has a rule for five kinds of column and refuses everything else. The
-  five are integers and floats and booleans and dates and strings. That refusal is
-  deliberate and it is also a trap waiting for the first artifact carrying a timestamp
-  or a nested column. It stops the release rather than hashing something arbitrary,
-  and the rule has to be written before imagery metadata lands.
+- `digest.py` has a rule for six kinds of column and refuses everything else. The six
+  are integers and floats and booleans and dates and strings and timestamps. The
+  timestamp rule was written the day imagery metadata arrived and it hashes the
+  integer the column physically holds, so the time unit and the zone live in the dtype
+  string rather than in a conversion. A Decimal, a Categorical or a nested column still
+  stops the release rather than being hashed arbitrarily.
+- No published standard was found that canonicalises typed tabular data for hashing.
+  The candidates are canonicalisation schemes for other shapes, JSON and RDF, and the
+  table formats that do carry hashes hash files rather than content. So `digest-v1` is
+  this repo's rule and a second implementation has to follow the module. That search
+  is a search and not a proof, and a standard that exists and was missed would be
+  worth adopting over this.
 - The failing branch of `no_storm_spans_two_splits` has never fired on real data. It
   is driven from both sides in `tests/test_splits.py` on a small frame, and on the real
   release it reports the random column's 27,907 beside the two zeros so the measurement
   is visibly working rather than merely quiet.
 - The DVC remote has only ever been a directory on the same filesystem. Nothing here
   has exercised a pull over a network.
+- The imagery tiles are not in the release. What is published is the metadata, the two
+  content hashes per tile and the URL each one came from. The pixels stay on NOAA's
+  tile server, so a rebuild depends on that server continuing to answer and on the
+  collection continuing to hold the same bytes. Nothing here mirrors them.
+- The Label Studio project has never been loaded into Label Studio. A scheduled run has
+  no browser, so the committed labels were made from contact sheets instead and the
+  export is written in Label Studio's task shape rather than confirmed by a server. The
+  checks assert the config parses, that it offers exactly the label set, and that every
+  field it renders is present in every task. None of that is the same as the project
+  opening.
+- One annotator, so agreement is unmeasured and the label distribution is one person's
+  reading. Twenty of the thirty-seven tiles are `possible`, which is a statement about
+  what a single pass at one metre per pixel over a ten month gap can settle, and a
+  second annotator is what would turn it into a number.
+- The before frame is the response to an earlier storm, because that is the only
+  imagery at this resolution that predates the event. It is pre-Ida and it is not
+  pre-damage.
+- The tile grid is cut at zoom 17 because 37 pairs is what one labelling pass covered.
+  Both sorties publish to zoom 19, and the same corridor holds 102 pairs one zoom
+  deeper at half the ground sample distance. The shallower grid is a labelling budget
+  and not a resolution judgement.
+- The imagery layer covers one event out of 336,014. It proves the path from a sortie
+  to a graded sample and it is not a dataset.
 
 ## Layout
 
@@ -565,11 +720,17 @@ stormfactory/digest.py     the writer independent content digest
 stormfactory/splits.py     the three split schemes and the span checks
 stormfactory/integrity.py  checking a download against something other than itself
 stormfactory/release.py    the artifact registry and the release manifest
-stormfactory/assets.py     twelve Dagster assets and eleven asset checks
+stormfactory/baseline.py   the damage baseline and the matched leakage experiment
+stormfactory/imagery.py    the sortie catalogue, the tile grid and the coverage probe
+stormfactory/labelling.py  the Label Studio project and the agreement guard
+stormfactory/assets.py     the Dagster assets and their checks
 tests/fixtures/            the labelled narrative sample and the refusal rows
+labelstudio/               the labelling config the project is built from
+labels/                    the labelling pass over the tile pairs
 stormfactory/paths.py      where data and release files live
 scripts/build_release.py   build every partition headlessly
 scripts/verify_rebuild.py  compare a rebuild against the release manifest
+scripts/contact_sheets.py  lay the tile pairs out for a pass without a browser
 scripts/dvc_roundtrip.sh   push to the dvc remote and pull back into an empty checkout
 tests/run_all.py           the whole suite, no test framework needed
 ```
