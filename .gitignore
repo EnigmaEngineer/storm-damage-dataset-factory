@@ -6,6 +6,11 @@
 # data/ rule makes data/parquet.dvc git-ignored and dvc add refuses to write it.
 data/raw/
 data/parquet/
+data/tiles/
+data/labelstudio/
+# Contact sheets for the labelling pass. Generated from the tiles, which are not here
+# either, and they are an annotation aid rather than part of the release.
+data/sheets/
 !data/*.dvc
 
 # The DVC cache is a second copy of the Parquet. The local remote is a third.

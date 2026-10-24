@@ -1,0 +1,28 @@
+{
+  "annotations": 37,
+  "tiles_labelled": 37,
+  "tiles_with_both_panels": 37,
+  "tiles_with_both_panels_left_unlabelled": [],
+  "labelled_tiles_outside_the_release": [],
+  "label_counts": {
+    "none": 15,
+    "possible": 20,
+    "clear": 1,
+    "not_assessable": 1
+  },
+  "label_set": [
+    "none",
+    "possible",
+    "clear",
+    "not_assessable"
+  ],
+  "agreement": {
+    "status": "unmeasured",
+    "annotators": 1,
+    "annotator_ids": [
+      "run-2026-10-24"
+    ],
+    "reason": "one annotator labelled this sample, so there is no second set of labels to agree with. A single annotator scored against themselves is not a reliability figure"
+  },
+  "annotator_note": "one annotator and it is an automated run reading each tile pair, recorded in the export as the annotator id. These labels are a worked example of the path from sortie to project to graded sample. They are not an expert ground truth and nothing in this release treats them as one"
+}

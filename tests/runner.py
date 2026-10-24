@@ -29,6 +29,8 @@ MODULES = [
     "tests.test_splits",
     "tests.test_release",
     "tests.test_baseline",
+    "tests.test_imagery",
+    "tests.test_labelling",
     "tests.test_readme",
 ]
 

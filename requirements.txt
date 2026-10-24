@@ -11,3 +11,9 @@ polars==2.0.0
 # the pin and the figures are measured against these.
 scikit-learn==1.7.2
 numpy==2.2.6
+# Only scripts/contact_sheets.py imports this, and it lays the tile pairs out for a
+# labelling pass. Nothing in stormfactory needs it and no release artifact depends on
+# it. It is here because depcheck grades every tracked module in the repo and a script
+# that imports an undeclared package is the thing that check exists to find.
+# A 3.10 wheel exists, which is the floor pyproject declares.
+pillow==12.3.0

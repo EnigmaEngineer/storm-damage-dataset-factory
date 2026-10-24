@@ -62,6 +62,9 @@ def build_joins_and_scrub(ok: bool) -> bool:
                           assets.blocked_split_keeps_each_state_whole,
                           assets.every_event_is_assigned_once]),
         ("spc_om_forms", [assets.spc_om_forms, assets.spc_om_form_counts_re_derive]),
+        ("eri_catalogue", [assets.eri_catalogue]),
+        ("imagery_tiles", [assets.imagery_tiles, assets.imagery_counts_re_derive,
+                           assets.tiles_hold_imagery_inside_the_declared_buffer]),
         ("release_manifest", [assets.release_manifest, assets.release_manifest_matches_the_data,
                               assets.day3_manifests_hold_no_wall_time]),
         ("baseline_report", [assets.baseline_report, assets.baseline_counts_re_derive,
@@ -69,6 +72,11 @@ def build_joins_and_scrub(ok: bool) -> bool:
                              assets.matched_arms_hold_one_evaluation_set_and_one_training_size,
                              assets.baseline_features_hold_nothing_excluded,
                              assets.day4_manifests_hold_no_wall_time]),
+        # Last, because it reads a committed labelling pass over the tiles the stage above
+        # publishes. A clean machine that has never fetched a tile still gets here, since
+        # the labels name tile ids and the check compares them against the artifact.
+        ("tile_labels", [assets.tile_labels, assets.agreement_is_unmeasured_with_one_annotator,
+                         assets.imagery_manifests_hold_no_wall_time]),
     ):
         result = materialize(targets)
         ok = ok and result.success

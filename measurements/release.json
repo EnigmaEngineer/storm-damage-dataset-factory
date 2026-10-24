@@ -1,5 +1,7 @@
 {
-  "release": "v0.1",
+  "release": "v0.2",
+  "supersedes": "v0.1",
+  "what_changed_since_the_version_it_supersedes": "imagery_tiles was added. Every artifact the previous release published is byte identical and content identical to what it published",
   "digest_version": "digest-v1",
   "artifacts": {
     "event_counties": {
@@ -37,6 +39,18 @@
       "sort_by": [
         "disaster_number",
         "county_fips"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "imagery_tiles": {
+      "path": "parquet/imagery_tiles/part.parquet",
+      "rows": 37,
+      "columns": 22,
+      "bytes": 12735,
+      "sha256": "ec5a18a14c9faaec28d909f249f35bbae3ea2992e779b13297b85aaabd44404e",
+      "content_sha256": "f494786d82af880166f081915a533b88953ea557c29336c44bff345151cb8417",
+      "sort_by": [
+        "tile_id"
       ],
       "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
     },

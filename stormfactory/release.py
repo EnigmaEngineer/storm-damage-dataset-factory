@@ -1,12 +1,13 @@
-"""What release v0.1 publishes about itself, and the rebuild claim it can support.
+"""What a release publishes about itself, and the rebuild claim it can support.
 
-A release here is six Parquet artifacts, none of them in git. What git carries is this
+A release here is a set of Parquet artifacts, none of them in git. What git carries is this
 manifest and the DVC pointer files, and between them they have to be enough to say
 whether a rebuild produced the same dataset.
 
 Each artifact gets two hashes and they answer different questions.
 
-`sha256` is over the file's bytes. It answers "is this the file v0.1 published" and it
+`sha256` is over the file's bytes. It answers "is this the file this release
+ published" and it
 is only reproducible under the same Parquet writer, because polars stamps its version
 and build id into the footer.
 
@@ -28,7 +29,12 @@ import polars as pl
 
 from . import digest, paths
 
-RELEASE = "v0.1"
+# v0.2 rather than v0.1. The imagery layer adds a tenth artifact, so the dataset a reader
+# gets is not the one v0.1's manifest describes, and leaving the string alone would make
+# two different datasets answer to one name. The artifacts v0.1 published are unchanged
+# and their hashes are the same, which is the part worth saying out loud.
+RELEASE = "v0.2"
+SUPERSEDES = "v0.1"
 
 # One registry, read by the manifest asset and by the check that re-derives it. The
 # sort key is part of the artifact's definition rather than a detail, because the
@@ -57,6 +63,10 @@ ARTIFACTS: dict[str, dict] = {
     "spc_reports": {"path": ("parquet", "spc_reports", "part.parquet"), "sort_by": ["spc_id", "report_type", "county_fips"]},
     "fema_declarations": {"path": ("parquet", "fema_declarations", "part.parquet"), "sort_by": ["disaster_number", "county_fips"]},
     "event_splits": {"path": ("parquet", "event_splits", "part.parquet"), "sort_by": ["EVENT_ID"]},
+    # One row per imagery tile over one event's damage track. The sort key is the tile id
+    # because that is what identifies a row, and `z/x/y` sorts as text in the order a
+    # reader expects only because every tile here shares a zoom and a magnitude.
+    "imagery_tiles": {"path": ("parquet", "imagery_tiles", "part.parquet"), "sort_by": ["tile_id"]},
 }
 
 
@@ -118,6 +128,11 @@ def build_manifest() -> dict:
     writers = sorted({a["written_by"] for a in artifacts.values()})
     return {
         "release": RELEASE,
+        "supersedes": SUPERSEDES,
+        "what_changed_since_the_version_it_supersedes": (
+            "imagery_tiles was added. Every artifact the previous release published is "
+            "byte identical and content identical to what it published"
+        ),
         "digest_version": digest.DIGEST_VERSION,
         "artifacts": artifacts,
         "writers": writers,

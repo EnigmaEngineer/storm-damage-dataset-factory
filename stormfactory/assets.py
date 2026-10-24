@@ -25,8 +25,8 @@ from dagster import (
 )
 
 from . import (
-    baseline, digest, fema, geo, grading, integrity, joins, paths, release, scrub, sources,
-    spc, splits,
+    baseline, digest, fema, geo, grading, imagery, integrity, joins, labelling, paths,
+    release, scrub, sources, spc, splits,
 )
 from .schema import cast_and_derive, read_raw, validate_or_raise
 
@@ -584,8 +584,8 @@ def every_event_is_assigned_once() -> AssetCheckResult:
         "problems": len(problems), "detail": MetadataValue.text("; ".join(problems) or "none")})
 
 
-@asset(deps=[event_counties, spc_reports, fema_declarations, event_splits],
-       description="Release v0.1, with a byte hash and a writer independent content hash per artifact.")
+@asset(deps=[event_counties, spc_reports, fema_declarations, event_splits, AssetKey("imagery_tiles")],
+       description="The release manifest, with a byte hash and a writer independent content hash per artifact.")
 def release_manifest() -> Output[dict]:
     manifest = release.write_manifest()
     return Output(manifest, metadata={
@@ -993,5 +993,367 @@ def day4_manifests_hold_no_wall_time() -> AssetCheckResult:
     path = paths.release_root() / "measurements" / "baseline.json"
     text = path.read_text().lower() if path.exists() else ""
     banned = [w for w in ("seconds", "elapsed", "duration", "_ms", "millis", "runtime", "took") if w in text]
+    return AssetCheckResult(passed=not banned, metadata={
+        "found": MetadataValue.text(", ".join(banned) or "none")})
+
+
+def _release_events() -> pl.DataFrame:
+    frames = [pl.read_parquet(paths.partition_path(y)) for y in YEARS]
+    return pl.concat(frames)
+
+
+def _catalogue_and_lock():
+    """The catalogue, refetched every time this is called.
+
+    It is not read back from `imagery.lock.json`, and the lock is a record of what was
+    read rather than a gate on reading it again. That costs 28 fetches per call and it
+    means a build is only as reproducible as NOAA's catalogue is stable. The hashes in
+    the lock are what would let a later run notice the difference, and nothing compares
+    them yet.
+    """
+    return imagery.build_catalogue()
+
+
+@asset(description="Every NOAA emergency response imagery collection, from both catalogue shapes.")
+def eri_catalogue(context: AssetExecutionContext) -> Output[dict]:
+    collections, storms = _catalogue_and_lock()
+    placeholder = imagery.placeholder_sha256()
+    by_shape = {}
+    for c in collections:
+        by_shape[c.catalogue_shape] = by_shape.get(c.catalogue_shape, 0) + 1
+
+    payload = {
+        "placeholder_sha256": placeholder,
+        "collections": len(collections),
+        "collections_by_catalogue_shape": by_shape,
+        "collections_with_a_declared_footprint": sum(1 for c in collections if c.bounds),
+        "storms": storms,
+        "what_a_footprint_is_not": (
+            "the declared bounds are the hull of a sortie's flight lines and not its "
+            "coverage, so a tile set is validated by probing and never by the box"
+        ),
+    }
+    imagery.lock_path().write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
+    context.log.info(f"catalogue holds {len(collections)} collections over {len(storms)} storms")
+    return Output(payload, metadata={
+        "collections": len(collections),
+        "with_a_footprint": payload["collections_with_a_declared_footprint"],
+        "shapes": MetadataValue.text(json.dumps(by_shape)),
+    })
+
+
+# The zoom is a labelling budget and not a resolution choice, and saying it the other way
+# round would be flattering. Both sorties publish to zoom 19. Over this event's track the
+# corridor holds 37 tiles at 17 and 117 at 18, and 117 pairs is more than one annotator
+# labels in one pass, so the grid is cut at 17 and a tile pixel covers about 1.03 m of
+# ground instead of 0.52. The manifest publishes both counts so the cost is visible.
+TILE_ZOOM = 17
+DEEPER_ZOOM_FOR_REFERENCE = 18
+
+# A tile is kept if its centre is within half the surveyed path width plus half a tile of
+# the track, which is the condition for the tile to overlap the damage swath at all. The
+# width comes from the event's own TOR_WIDTH rather than from a chosen number.
+YARD_M = 0.9144
+
+
+def _event_candidates(events: pl.DataFrame, collections) -> pl.DataFrame:
+    """Events the catalogue can supply both a before and an after frame for.
+
+    Prefiltered on the declared footprint, which is all a cheap pass can use. The box is
+    not coverage, so this is a candidate list and not an answer, and the coverage probe
+    below is what decides.
+    """
+    boxed = [c for c in collections if c.bounds]
+    rows = []
+    for r in events.filter(pl.col("has_point") & pl.col("damage_property_usd").is_not_null()).iter_rows(named=True):
+        begin = imagery.begin_utc(r["BEGIN_DATE_TIME"], r["CZ_TIMEZONE"]).date()
+        lat, lon = r["BEGIN_LAT"], r["BEGIN_LON"]
+        here = [c for c in boxed if c.box_holds(lat, lon)]
+        post = [c for c in here if 0 <= (c.acquired - begin).days <= imagery.POST_WINDOW_DAYS]
+        pre = [c for c in here if c.acquired < begin]
+        if post and pre:
+            rows.append({
+                "EVENT_ID": r["EVENT_ID"],
+                "damage_property_usd": r["damage_property_usd"],
+                "post_candidates": len(post),
+                "pre_candidates": len(pre),
+            })
+    if not rows:
+        raise imagery.ImageryError("no release event has both a before and an after candidate")
+    return pl.DataFrame(rows).sort(["damage_property_usd", "EVENT_ID"], descending=[True, False])
+
+
+def _pick_by_coverage(candidates, tiles, zoom, placeholder, nearest: str):
+    """The collection covering the most of this tile set, probed rather than assumed.
+
+    Coverage comes first and the acquisition date only breaks a tie. A sortie two days
+    after the event that holds none of the track is worth less than one four days after
+    that holds all of it, and ordering these the other way round is how a project ends up
+    with a dozen answerable tasks out of forty.
+    """
+    scored = []
+    for c in candidates:
+        held = imagery.probe_coverage(c, tiles, zoom, placeholder)
+        rank = c.acquired.toordinal() if nearest == "earliest" else -c.acquired.toordinal()
+        scored.append({"collection": c, "tiles_with_imagery": len(held), "rank": rank, "probed": held})
+    scored.sort(key=lambda s: (-s["tiles_with_imagery"], s["rank"]))
+    return scored
+
+
+@asset(deps=[eri_catalogue, storm_events],
+       description="Imagery tile pairs over one event's damage track, before and after.")
+def imagery_tiles(context: AssetExecutionContext) -> Output[dict]:
+    events = _release_events()
+    collections, _ = _catalogue_and_lock()
+    placeholder = imagery.placeholder_sha256()
+
+    candidates = _event_candidates(events, collections)
+    chosen_id = int(candidates["EVENT_ID"][0])
+    event = events.filter(pl.col("EVENT_ID") == chosen_id).to_dicts()[0]
+    begin = imagery.begin_utc(event["BEGIN_DATE_TIME"], event["CZ_TIMEZONE"])
+
+    start = (event["BEGIN_LAT"], event["BEGIN_LON"])
+    end = (event["END_LAT"], event["END_LON"])
+    mid_lat = (start[0] + end[0]) / 2
+    tile_edge_m = 256 * imagery.metres_per_pixel(mid_lat, TILE_ZOOM)
+    buffer_m = event["TOR_WIDTH"] * YARD_M / 2 + tile_edge_m / 2
+    tiles = imagery.corridor_tiles(start, end, TILE_ZOOM, buffer_m)
+
+    boxed = [c for c in collections if c.bounds and c.box_holds(*start)]
+    post_candidates = [c for c in boxed if 0 <= (c.acquired - begin.date()).days <= imagery.POST_WINDOW_DAYS]
+    pre_candidates = [c for c in boxed if c.acquired < begin.date()]
+    post_scored = _pick_by_coverage(post_candidates, tiles, TILE_ZOOM, placeholder, "earliest")
+    pre_scored = _pick_by_coverage(pre_candidates, tiles, TILE_ZOOM, placeholder, "latest")
+    post, pre = post_scored[0]["collection"], pre_scored[0]["collection"]
+
+    post_fetch = imagery.fetch_tiles(post, tiles, TILE_ZOOM, imagery.tile_dir(post.name), placeholder)
+    pre_fetch = imagery.fetch_tiles(pre, tiles, TILE_ZOOM, imagery.tile_dir(pre.name), placeholder)
+
+    # Selection asks with a HEAD and the fetch asks with a GET and hashes what comes back.
+    # Two different questions, so the chosen pair is the one place they can be compared,
+    # and a disagreement would mean the cheap question is answering the wrong thing.
+    head_against_body = {
+        side: sorted(
+            f"{t.x},{t.y}" for t in fetched
+            if t.is_imagery != ((t.x, t.y) in scored[0]["probed"])
+        )
+        for side, fetched, scored in (("post", post_fetch, post_scored), ("pre", pre_fetch, pre_scored))
+    }
+    frame = imagery.tiles_frame(event, TILE_ZOOM, post, pre, post_fetch, pre_fetch)
+    path = release.write_artifact("imagery_tiles", frame)
+
+    both = frame.filter(pl.col("post_has_imagery") & pl.col("pre_has_imagery")).height
+    tasks = labelling.tasks_for_tiles(frame, post.tile_template, pre.tile_template)
+    labelling.tasks_path().parent.mkdir(parents=True, exist_ok=True)
+    labelling.tasks_path().write_text(json.dumps(tasks, indent=1) + "\n")
+
+    payload = {
+        "event": {
+            "EVENT_ID": chosen_id,
+            "event_type": event["EVENT_TYPE"],
+            "state": event["STATE"],
+            "county": event["CZ_NAME"],
+            "begin_local": event["BEGIN_DATE_TIME"],
+            "stated_zone": event["CZ_TIMEZONE"],
+            "begin_utc_under_the_stated_offset": begin.isoformat(),
+            "damage_property_usd": event["damage_property_usd"],
+            "tor_f_scale": event["TOR_F_SCALE"],
+            "tor_length_miles": event["TOR_LENGTH"],
+            "tor_width_yards": event["TOR_WIDTH"],
+            "track_length_m": round(imagery.haversine_m(start, end), 1),
+        },
+        "selection": {
+            "events_with_a_before_and_an_after_candidate": candidates.height,
+            "rule": (
+                "highest recorded property damage among release events holding a point, a "
+                "footprint-containing sortie within seven days after the begin date, and "
+                "one before it"
+            ),
+        },
+        "grid": {
+            "zoom": TILE_ZOOM,
+            "tile_edge_m": round(tile_edge_m, 1),
+            "metres_per_pixel": round(imagery.metres_per_pixel(mid_lat, TILE_ZOOM), 4),
+            "buffer_m": round(buffer_m, 1),
+            "buffer_rule": "half the surveyed path width plus half a tile",
+            "tiles_in_corridor": len(tiles),
+            "tiles_in_corridor_at_the_deeper_zoom": len(imagery.corridor_tiles(
+                start, end, DEEPER_ZOOM_FOR_REFERENCE,
+                event["TOR_WIDTH"] * YARD_M / 2
+                + 256 * imagery.metres_per_pixel(mid_lat, DEEPER_ZOOM_FOR_REFERENCE) / 2)),
+            "deeper_zoom_for_reference": DEEPER_ZOOM_FOR_REFERENCE,
+            "metres_per_pixel_at_the_deeper_zoom": round(
+                imagery.metres_per_pixel(mid_lat, DEEPER_ZOOM_FOR_REFERENCE), 4),
+            "why_not_the_deeper_zoom": (
+                "both sorties publish to zoom 19 and the deeper grid is sharper. The grid "
+                "is cut shallower because one annotator labelled this pass and the deeper "
+                "corridor holds more pairs than one pass covers"
+            ),
+        },
+        "chosen": {
+            "post": {"collection": post.name, "storm": post.storm, "acquired": str(post.acquired),
+                     "days_after_begin": (post.acquired - begin.date()).days,
+                     **imagery.coverage(post_fetch)},
+            "pre": {"collection": pre.name, "storm": pre.storm, "acquired": str(pre.acquired),
+                    "days_before_begin": (begin.date() - pre.acquired).days,
+                    **imagery.coverage(pre_fetch)},
+            "tiles_with_both_panels": both,
+            "tiles_where_the_head_probe_and_the_fetch_disagree": head_against_body,
+        },
+        "coverage_against_the_declared_footprint": {
+            "post_candidates": [
+                {"collection": s["collection"].name, "acquired": str(s["collection"].acquired),
+                 "tiles_with_imagery": s["tiles_with_imagery"]} for s in post_scored
+            ],
+            "pre_candidates": [
+                {"collection": s["collection"].name, "acquired": str(s["collection"].acquired),
+                 "tiles_with_imagery": s["tiles_with_imagery"]} for s in pre_scored
+            ],
+            "candidates_whose_footprint_holds_every_tile_centre": sum(
+                1 for s in post_scored + pre_scored
+                if all(s["collection"].box_holds(*imagery.tile_centre(TILE_ZOOM, x, y))
+                       for x, y in tiles)
+            ),
+            "candidates": len(post_scored) + len(pre_scored),
+        },
+        "timezone_field": imagery.timezone_field_audit(events),
+        "labelstudio_tasks": len(tasks),
+        "artifact": str(path.relative_to(paths.data_root())).replace("\\", "/"),
+    }
+    imagery_manifest_path().parent.mkdir(parents=True, exist_ok=True)
+    imagery_manifest_path().write_text(json.dumps(payload, indent=2) + "\n")
+    context.log.info(f"event {chosen_id}: {both} of {len(tiles)} tiles hold both panels")
+    return Output(payload, metadata={
+        "event": chosen_id,
+        "tiles_in_corridor": len(tiles),
+        "tiles_with_both_panels": both,
+        "post": MetadataValue.text(post.name),
+        "pre": MetadataValue.text(pre.name),
+    })
+
+
+def imagery_manifest_path() -> Path:
+    return paths.release_root() / "measurements" / "imagery.json"
+
+
+def labels_manifest_path() -> Path:
+    return paths.release_root() / "measurements" / "labels.json"
+
+
+@asset(deps=[imagery_tiles], description="The labelling pass over the tile pairs, and its agreement.")
+def tile_labels() -> Output[dict]:
+    labels = labelling.read_labels()
+    frame = pl.read_parquet(release.artifact_path("imagery_tiles"))
+    labelable = set(
+        frame.filter(pl.col("post_has_imagery") & pl.col("pre_has_imagery"))["tile_id"].to_list()
+    )
+    labelled = set(labels["tile_id"].to_list())
+
+    payload = {
+        "annotations": labels.height,
+        "tiles_labelled": len(labelled),
+        "tiles_with_both_panels": len(labelable),
+        "tiles_with_both_panels_left_unlabelled": sorted(labelable - labelled),
+        "labelled_tiles_outside_the_release": sorted(labelled - labelable),
+        "label_counts": labelling.label_counts(labels),
+        "label_set": list(labelling.LABELS),
+        "agreement": labelling.agreement(labels),
+        "annotator_note": (
+            "one annotator and it is an automated run reading each tile pair, recorded in "
+            "the export as the annotator id. These labels are a worked example of the "
+            "path from sortie to project to graded sample. They are not an expert ground "
+            "truth and nothing in this release treats them as one"
+        ),
+    }
+    labels_manifest_path().write_text(json.dumps(payload, indent=2) + "\n")
+    return Output(payload, metadata={
+        "annotations": labels.height,
+        "agreement": MetadataValue.text(payload["agreement"]["status"]),
+        "counts": MetadataValue.text(json.dumps(payload["label_counts"])),
+    })
+
+
+@asset_check(asset=AssetKey("imagery_tiles"),
+             description="Every count in the imagery manifest re-derived from the Parquet.")
+def imagery_counts_re_derive() -> AssetCheckResult:
+    stated = json.loads(imagery_manifest_path().read_text())
+    frame = pl.read_parquet(release.artifact_path("imagery_tiles"))
+    problems = []
+    if frame.height != stated["grid"]["tiles_in_corridor"]:
+        problems.append(f"manifest says {stated['grid']['tiles_in_corridor']} tiles and the artifact holds {frame.height}")
+    both = frame.filter(pl.col("post_has_imagery") & pl.col("pre_has_imagery")).height
+    if both != stated["chosen"]["tiles_with_both_panels"]:
+        problems.append(f"manifest says {stated['chosen']['tiles_with_both_panels']} tiles with both panels and the artifact holds {both}")
+    for side in ("post", "pre"):
+        held = frame.filter(pl.col(f"{side}_has_imagery")).height
+        if held != stated["chosen"][side]["tiles_with_imagery"]:
+            problems.append(f"{side} coverage states {stated['chosen'][side]['tiles_with_imagery']} and the artifact holds {held}")
+        if frame[f"{side}_collection"].n_unique() != 1:
+            problems.append(f"{side}_collection is not one collection")
+    return AssetCheckResult(passed=not problems, metadata={
+        "tiles": frame.height,
+        "tiles_with_both_panels": both,
+        "problems": MetadataValue.text("; ".join(problems) or "none"),
+    })
+
+
+@asset_check(asset=AssetKey("imagery_tiles"),
+             description="No tile carries the placeholder hash, and none sits outside the buffer.")
+def tiles_hold_imagery_inside_the_declared_buffer() -> AssetCheckResult:
+    stated = json.loads(imagery_manifest_path().read_text())
+    placeholder = json.loads(imagery.lock_path().read_text())["placeholder_sha256"]
+    frame = pl.read_parquet(release.artifact_path("imagery_tiles"))
+    problems = []
+    for side in ("post", "pre"):
+        if frame.filter(pl.col(f"{side}_sha256") == placeholder).height:
+            problems.append(f"{side} keeps a tile whose content is the placeholder")
+        held = frame.filter(pl.col(f"{side}_has_imagery"))
+        if held.filter(pl.col(f"{side}_sha256").is_null()).height:
+            problems.append(f"{side} claims imagery with no hash")
+    disagreements = stated["chosen"]["tiles_where_the_head_probe_and_the_fetch_disagree"]
+    for side, tiles in disagreements.items():
+        if tiles:
+            problems.append(f"the {side} probe and the {side} fetch disagree on {tiles}")
+    outside = frame.filter(pl.col("metres_from_track") > stated["grid"]["buffer_m"] + 1e-6)
+    if outside.height:
+        problems.append(f"{outside.height} tiles sit beyond the declared buffer")
+    if frame["tile_id"].n_unique() != frame.height:
+        problems.append("tile_id repeats")
+    return AssetCheckResult(passed=not problems, metadata={
+        "placeholder_sha256": MetadataValue.text(placeholder[:16]),
+        "problems": MetadataValue.text("; ".join(problems) or "none"),
+    })
+
+
+@asset_check(asset=AssetKey("tile_labels"),
+             description="Agreement stays unmeasured while there is one annotator.")
+def agreement_is_unmeasured_with_one_annotator() -> AssetCheckResult:
+    stated = json.loads(labels_manifest_path().read_text())
+    agreement = stated["agreement"]
+    problems = []
+    if agreement["annotators"] < 2 and agreement["status"] != "unmeasured":
+        problems.append("one annotator and the manifest reports a measured agreement")
+    if agreement["status"] == "unmeasured" and any(
+        isinstance(v, float) for k, v in agreement.items()
+    ):
+        problems.append("an unmeasured agreement carries a number")
+    if stated["labelled_tiles_outside_the_release"]:
+        problems.append(f"labels name tiles the release does not hold: {stated['labelled_tiles_outside_the_release']}")
+    if stated["tiles_with_both_panels_left_unlabelled"]:
+        problems.append(f"{len(stated['tiles_with_both_panels_left_unlabelled'])} answerable tiles were not labelled")
+    return AssetCheckResult(passed=not problems, metadata={
+        "status": MetadataValue.text(agreement["status"]),
+        "annotators": agreement["annotators"],
+        "problems": MetadataValue.text("; ".join(problems) or "none"),
+    })
+
+
+@asset_check(asset=AssetKey("tile_labels"),
+             description="Refuse a wall time in the imagery or the label manifest.")
+def imagery_manifests_hold_no_wall_time() -> AssetCheckResult:
+    banned = []
+    for path in (imagery_manifest_path(), labels_manifest_path()):
+        text = path.read_text().lower() if path.exists() else ""
+        banned += [f"{path.name}:{w}" for w in ("seconds", "elapsed", "duration", "_ms", "millis", "runtime", "took") if w in text]
     return AssetCheckResult(passed=not banned, metadata={
         "found": MetadataValue.text(", ".join(banned) or "none")})

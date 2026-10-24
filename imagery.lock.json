@@ -1,0 +1,180 @@
+{
+  "collections": 208,
+  "collections_by_catalogue_shape": {
+    "js/app.js": 93,
+    "services/index.json": 115
+  },
+  "collections_with_a_declared_footprint": 115,
+  "placeholder_sha256": "ba78444bfbd7c20f571088bc949f4d6f0fc0a30dcc92e42bccc821c3216abbef",
+  "storms": {
+    "2023_hawaii": {
+      "catalogue_shape": "services/index.json",
+      "collections": 3,
+      "sha256": "f073801cddd79f4e59f002c4026e36d70837f4bffcb119f440d6d88ad3e7a342",
+      "unavailable": null
+    },
+    "barry": {
+      "catalogue_shape": "js/app.js",
+      "collections": 3,
+      "sha256": "dfe032a153568412ed246b6bbb0cefae001265accc3e1da7d7350fe9bc2c41fe",
+      "unavailable": null
+    },
+    "debby": {
+      "catalogue_shape": "services/index.json",
+      "collections": 3,
+      "sha256": "fc6b175e10f7515d6ec49d02cb3bd1af99de73b465f3d987cd81b5c256f42eed",
+      "unavailable": null
+    },
+    "delta": {
+      "catalogue_shape": "js/app.js",
+      "collections": 0,
+      "sha256": "ad6d2e98e4620049190d6d5d6cad9af3f610964e294a0c15d1191379d566c9bb",
+      "unavailable": null
+    },
+    "dorian": {
+      "catalogue_shape": "js/app.js",
+      "collections": 13,
+      "sha256": "d6f72dfa87f53f87e65f81ecd4a1e3acf7a05cbb8a6e5bfca91c98e41a95e284",
+      "unavailable": null
+    },
+    "erin": {
+      "catalogue_shape": "services/index.json",
+      "collections": 3,
+      "sha256": "b735f4c4d6a304e217eab590577db6b67ff9059e647d54a76e59b390daa1840f",
+      "unavailable": null
+    },
+    "florence": {
+      "catalogue_shape": "js/app.js",
+      "collections": 15,
+      "sha256": "1048d1482ea64c9883f650a8f34c2a48100d69245b75d05ff75920887ba85dbc",
+      "unavailable": null
+    },
+    "francine": {
+      "catalogue_shape": "services/index.json",
+      "collections": 4,
+      "sha256": "6a5245bef6b9b5159ac589466b20d70ee0575f09494a7d4c321d8213d44fc633",
+      "unavailable": null
+    },
+    "gordon": {
+      "catalogue_shape": "js/app.js",
+      "collections": 2,
+      "sha256": "c62f9685c743ea3039b74861aed35218ef22f69aca8597626b9de0aff26b63db",
+      "unavailable": null
+    },
+    "harvey": {
+      "catalogue_shape": "js/app.js",
+      "collections": 15,
+      "sha256": "a5766198f74c366261ff3d1d583650ef56014c73d7d92932b608712e295e9420",
+      "unavailable": null
+    },
+    "helene": {
+      "catalogue_shape": "services/index.json",
+      "collections": 20,
+      "sha256": "b7843e03cebd80d3ec28b5a6de5c1454edb9d6306d511a472a4e9e66731abfce",
+      "unavailable": null
+    },
+    "henri": {
+      "catalogue_shape": "services/index.json",
+      "collections": 4,
+      "sha256": "9457cbc2b762ba79f4cb81bf29540ee3bbb2af783ecd0b55bee9031516dc4bf3",
+      "unavailable": null
+    },
+    "ian": {
+      "catalogue_shape": "services/index.json",
+      "collections": 12,
+      "sha256": "a3f074ab623934de4adb15b4478e945c444b0e8b7cb4456d7d358aeb4b0a22b1",
+      "unavailable": null
+    },
+    "ida": {
+      "catalogue_shape": "services/index.json",
+      "collections": 8,
+      "sha256": "cc378fcd2a845931ef2632b8705995174cde21d73a8d6c7761925f68ba0165de",
+      "unavailable": null
+    },
+    "idalia": {
+      "catalogue_shape": "services/index.json",
+      "collections": 5,
+      "sha256": "c179dc663729e7b778d2f36db755a515b9053c06d2c4445b20719d477d841741",
+      "unavailable": null
+    },
+    "irma": {
+      "catalogue_shape": "js/app.js",
+      "collections": 16,
+      "sha256": "183a9e89edcb3900e15e868a2d572ff1ce4425a591464fed7b171b31c8ed2871",
+      "unavailable": null
+    },
+    "isaias": {
+      "catalogue_shape": "js/app.js",
+      "collections": 3,
+      "sha256": "58e00ccc45d26e940c353445f225aa4d64445625526fc548e656e42e1c1e599b",
+      "unavailable": null
+    },
+    "laura": {
+      "catalogue_shape": "js/app.js",
+      "collections": 10,
+      "sha256": "e8e48ac5a954605b8e1ae345ba051fa38fe006a4885e79d553089f7b9e256e8a",
+      "unavailable": null
+    },
+    "lee": {
+      "catalogue_shape": "services/index.json",
+      "collections": 2,
+      "sha256": "e9879bd5ce09bc93b819c6ed96b53b151a463ae06923cfb64592393438922fb4",
+      "unavailable": null
+    },
+    "maria": {
+      "catalogue_shape": "js/app.js",
+      "collections": 8,
+      "sha256": "06530bfad196d42b24f626922bef6dd2b6252185b3ba134d2c5a2c238a727da6",
+      "unavailable": null
+    },
+    "melissa": {
+      "catalogue_shape": "services/index.json",
+      "collections": 24,
+      "sha256": "306edc162605a33449cabc3ee2911c0bff8499d32fd1255a472cb8636f7d39ce",
+      "unavailable": null
+    },
+    "michael": {
+      "catalogue_shape": "services/index.json",
+      "collections": 5,
+      "sha256": "7c6448bc70d6723d7565887839f7dca9d7b3f9b50531e4c3177a3723e666683a",
+      "unavailable": null
+    },
+    "milton": {
+      "catalogue_shape": "services/index.json",
+      "collections": 13,
+      "sha256": "a7b5e6ab7cb66c5064322b04eef8c627212e499c0286dd5f5dd08c6ef5015977",
+      "unavailable": null
+    },
+    "nashville": {
+      "catalogue_shape": "js/app.js",
+      "collections": 1,
+      "sha256": "d85a47cb488245d71cadb2f346cf6c3608b00c988ce2c9541abb342a18f67723",
+      "unavailable": null
+    },
+    "nate": {
+      "catalogue_shape": "js/app.js",
+      "collections": 1,
+      "sha256": "0991dcb29176b44c463bd12126271a9d2087b76c4a0993224ef18a9a76981326",
+      "unavailable": null
+    },
+    "nicole": {
+      "catalogue_shape": "services/index.json",
+      "collections": 4,
+      "sha256": "7cafeb21493e07cca3ab01f7b0875e9bf9ed9b7ffda2cef1e186ea9849557c58",
+      "unavailable": null
+    },
+    "sally": {
+      "catalogue_shape": "js/app.js",
+      "collections": 6,
+      "sha256": "7c67f10209603bc0072075442d9b851ba775f1e9be4da640cee9a765296af947",
+      "unavailable": null
+    },
+    "zeta": {
+      "catalogue_shape": "services/index.json",
+      "collections": 5,
+      "sha256": "78eb6d11ac09ceefec2d7ddbd442bf9a61aaa32124f3e01b9bd611db406ad95f",
+      "unavailable": null
+    }
+  },
+  "what_a_footprint_is_not": "the declared bounds are the hull of a sortie's flight lines and not its coverage, so a tile set is validated by probing and never by the box"
+}
