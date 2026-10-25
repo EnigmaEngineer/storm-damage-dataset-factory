@@ -17,3 +17,13 @@ numpy==2.2.6
 # that imports an undeclared package is the thing that check exists to find.
 # A 3.10 wheel exists, which is the floor pyproject declares.
 pillow==12.3.0
+# The vector column lands in Postgres and the graph lands in Neo4j, and the two build
+# scripts under scripts/ are what talk to them. Nothing under stormfactory/ imports
+# either driver, because the modules there build statements and payloads and the
+# scripts own the connection and the server lifecycle. They are declared here because
+# the dependency check grades every tracked module in the repository, and a script that
+# imports an undeclared package is the thing that check exists to find.
+#
+# Both publish a wheel for 3.10, which is the floor pyproject declares.
+psycopg2-binary==2.9.11
+neo4j==6.4.1
