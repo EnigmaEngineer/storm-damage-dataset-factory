@@ -1,0 +1,49 @@
+{
+  "counties": 3239,
+  "cross_check": {
+    "agree": true,
+    "disaster_numbers": [
+      3474,
+      3569,
+      4528,
+      4626
+    ],
+    "graph_distinct_declarations": 4,
+    "graph_paths": 84,
+    "labels_in_scope": [
+      "possible",
+      "clear"
+    ],
+    "open_ended_paths": 0,
+    "parquet_distinct_declarations": 4,
+    "parquet_paths": 84,
+    "paths_per_declaration": 21.0,
+    "problems": [],
+    "question": "Which disaster declarations covered a county holding a tile that one annotator labelled possible or clear, where the declaration's incident window contains the event's begin date"
+  },
+  "declaration_edges": 14039,
+  "declaration_nodes_expected": 660,
+  "distinct_label_nodes": 4,
+  "edges_in_graph": {
+    "COVERS": 14039,
+    "HAS_LABEL": 37,
+    "IN_COUNTY": 62058,
+    "OVER_EVENT": 37,
+    "TILE_IN_COUNTY": 37
+  },
+  "event_county_edges": 62058,
+  "events": 55656,
+  "labels": 37,
+  "neo4j_version": "Neo4j Kernel 5.26.0 community",
+  "nodes_in_graph": {
+    "County": 3239,
+    "Declaration": 660,
+    "Event": 55656,
+    "Label": 4,
+    "Tile": 37
+  },
+  "open_ended_declarations": 55,
+  "scope_year": 2021,
+  "tile_county_edges": 37,
+  "tiles": 37
+}
