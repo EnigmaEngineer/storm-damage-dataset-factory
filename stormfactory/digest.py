@@ -37,6 +37,7 @@ import sys
 from array import array
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 
 DIGEST_VERSION = "digest-v1"
@@ -79,11 +80,34 @@ def _column_bytes(name: str, series: pl.Series) -> list[bytes]:
         # the same values stay apart whichever array code carried them.
         code = "Q" if dtype in (pl.UInt8, pl.UInt16, pl.UInt32, pl.UInt64) else "q"
         parts.append(_little_endian(code, present.to_list()))
-    elif dtype == pl.Float64:
+    elif dtype in (pl.Float64, pl.Float32):
         for v in present.to_list():
             if v != v:
                 raise DigestError(f"{name} holds a NaN, which has no single bit pattern")
-        parts.append(_little_endian("d", present.to_list()))
+        parts.append(_little_endian("d" if dtype == pl.Float64 else "f", present.to_list()))
+    elif isinstance(dtype, pl.Array) and dtype.inner in (pl.Float32, pl.Float64):
+        # An embedding column. The width is fixed by the dtype rather than by the rows,
+        # which is why this rule takes Array and refuses List. A ragged column would
+        # digest the same as a different ragged column with the values redistributed,
+        # and the width is the thing that makes the flattening unambiguous.
+        #
+        # The dtype string above already carries the inner type and the width, so the
+        # hash separates a 128 wide column from a 256 wide one without any help here.
+        #
+        # This goes through numpy rather than through a Python list. An embedding
+        # column holds width times height floats. That reaches tens of millions on a
+        # release sized artifact and a per value Python loop over it does not finish
+        # in a sensible time. The bytes are identical either way. A C ordered float32
+        # buffer is what the array module would have produced. The row by row order
+        # it lays down is the order `explode` gives.
+        flat = present.to_numpy().reshape(-1)
+        if np.isnan(flat).any():
+            raise DigestError(
+                f"{name} holds a null or a NaN inside a vector. A null cannot be "
+                "expressed at a fixed width and a NaN has no single bit pattern"
+            )
+        buf = flat.astype("<f4" if dtype.inner == pl.Float32 else "<f8", copy=False)
+        parts.append(buf.tobytes())
     elif dtype == pl.Date:
         parts.append(_little_endian("q", [v.toordinal() for v in present.to_list()]))
     elif isinstance(dtype, pl.Datetime):
