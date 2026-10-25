@@ -205,3 +205,30 @@ def check_the_release_manifest_names_what_each_hash_proves():
     manifest = release.read_manifest()
     assert "writer" in manifest["what_the_byte_hash_proves"]
     assert "any Parquet writer" in manifest["what_the_content_hash_proves"]
+
+
+def check_the_published_manifest_agrees_with_the_registry_in_the_code():
+    """The code is the authority on what the release contains, not the manifest file.
+
+    The existing check compares the README against the manifest. Both are written
+    output, so adding an artifact to the registry and regenerating neither left the
+    two agreeing with each other and disagreeing with the code. That is the stale
+    number this repository has a rule about, and nothing was reading the rule's
+    subject. This compares the manifest against `release.ARTIFACTS` and
+    `release.RELEASE`, which the manifest is generated from.
+    """
+    stated = json.loads((paths.REPO_ROOT / "measurements" / "release.json").read_text())
+    assert stated["release"] == release.RELEASE, (
+        f"the manifest publishes {stated['release']} and the code declares {release.RELEASE}"
+    )
+    assert stated["supersedes"] == release.SUPERSEDES, (
+        f"the manifest supersedes {stated['supersedes']} and the code says {release.SUPERSEDES}"
+    )
+    published = set(stated["artifacts"])
+    registered = set(release.ARTIFACTS)
+    assert published == registered, (
+        f"the manifest publishes {len(published)} artifacts and the registry declares "
+        f"{len(registered)}, differing by {sorted(published ^ registered)}"
+    )
+    for name, entry in release.ARTIFACTS.items():
+        assert stated["artifacts"][name]["sort_by"] == entry["sort_by"], name

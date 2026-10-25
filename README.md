@@ -8,11 +8,11 @@ partition, and a partition that fails its contract is never written.
 python scripts/build_release.py
 ```
 
-Release v0.2 is ten Parquet artifacts. None of them are in git. What git carries is
+Release v0.3 is eleven Parquet artifacts. None of them are in git. What git carries is
 `measurements/release.json` and one DVC pointer, and between them they are enough to
 say whether a rebuild produced the same dataset. v0.1 was nine artifacts and the
-imagery layer is the tenth, so the version moved rather than the name covering two
-different datasets.
+imagery layer made it ten. The narrative vector column is the eleventh, so the version
+moved again rather than the name covering two different datasets.
 
 ## What is real and what is synthetic
 
@@ -27,7 +27,7 @@ contract's refusals and they never reach a Parquet file.
 
 The Storm Events layer for five storm years, 2019 through 2023. Storm Prediction
 Center reports and OpenFEMA declarations joined to it by county and date. A scrub of
-the personal detail in the narratives. Release v0.2 under DVC, with three train and
+the personal detail in the narratives. Release v0.3 under DVC, with three train and
 test splits beside it. Aerial imagery tiles over one event's damage track, before and
 after, and a labelling pass over them.
 
@@ -200,6 +200,11 @@ writers here:    Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a25
 writers there:   Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)
 all 10 artifacts agree bit for bit and by content
 ```
+
+That transcript is the v0.2 rebuild and it names the ten artifacts v0.2 published. The
+vector column arrived after it and has not been through a clean clone. So the bit for
+bit claim covers ten of the eleven artifacts in v0.3. The eleventh carries both hashes
+in the manifest without a second machine having reproduced them yet.
 
 ## The splits, and the leak the random one has
 
@@ -443,6 +448,130 @@ damage or could be the ten months and the different sun angle between the two fr
 1.0313 m per pixel a house is about fifteen pixels across, and thinning canopy beside an
 intact roof is exactly the case a single pass cannot settle.
 
+## Narrative vectors, and what the index actually returns
+
+The narratives are the only free text here. `narrative_vectors` carries one row per
+event that has one, with a 256 wide vector beside the columns a search
+filters on. 271,908 events of the 336,014 in the
+release carry a narrative. The other 64,106 do not.
+
+These are lexical vectors and not a pretrained sentence encoder. The pipeline is a
+TF-IDF matrix over the scrubbed narratives reduced by a truncated SVD, which is latent
+semantic analysis. The vocabulary is 26,035 terms and the reduction keeps
+0.448454 of the variance.
+
+The reason is reproducibility. This release is pinned by content digests and judged by
+whether another machine reproduces them. A seeded SVD over fixed rows is a function of
+its input. A neural encoder pins the column to a checkpoint and a framework build
+instead, and a reader who cannot fetch that exact checkpoint cannot rebuild the column
+at all. The build runs twice and compares a fingerprint over the vectors, so the claim
+is checked rather than asserted.
+
+The cost is stated rather than hidden. Lexical vectors miss a paraphrase that shares no
+vocabulary. Nothing here measures how often that happens, because measuring it needs a
+question set with relevance labels and this release has none. **No retrieval quality
+figure is published anywhere in this repository.**
+
+What is published is what the index does, which needs no labels. Exact search is the
+definition of the query rather than a second opinion, so recall of the approximate
+index against it is a property of the index.
+
+| Query shape | Recall at 10 | Queries using the vector index | Differing only by a tie | Median rows matching |
+|---|---|---|---|---|
+| no filter | 0.86 | 50 of 50 | 48 | 271,908 |
+| event type | 0.852 | 50 of 50 | 46 | 17,135 |
+| event type and state | 0.96 | 0 of 50 | 50 | 681 |
+
+Two of those columns are the point and the recall number alone would mislead without
+them.
+
+The third row never used the vector index. With a predicate leaving about
+681 rows the planner takes the
+ordinary index on the filter column and sorts what it finds, which is the exact answer.
+So 0.96 is not an index recall at all. It is two exact
+searches disagreeing, and a reader given the number alone would read it as the index
+doing well under a filter when the index was not involved.
+
+The tie column explains the rest. 47,488 of
+the 271,908 rows share a vector with another row, because NOAA repeats an
+episode narrative verbatim across the events of that episode. Only
+224,420 vectors are distinct. So the boundary of a top ten often falls
+inside a group of identical vectors, and which members come back is arbitrary. On
+48 of the
+50 unfiltered queries the two results sat at identical distances,
+which is a tie broken two ways rather than the index missing anything. The naive recall
+figure counts those as misses.
+
+The figure also moves between builds. An ivfflat index partitions by k-means from a
+random start, so rebuilding it over the same rows gives a different index. Three builds
+over this artifact today returned 0.83, 0.836 and 0.86 unfiltered.
+The vector column is deterministic and the index over it is not, and those are separate
+claims. The manifest records one build.
+
+Bringing the store up, loading and measuring is one command, because the server does
+not outlive the shell that starts it here.
+
+```
+python3 scripts/build_vectors.py
+```
+
+## The graph, and one answer computed twice
+
+The same rows go into Neo4j as a graph, so a question that runs along a path is one
+query rather than four joins. The graph covers 2021, which is the year the
+imagery layer tiled. The vector column spans every year and this does not, because a
+graph carrying four more years of events that no tile reaches answers the same question
+with more nodes.
+
+| Node | Count |
+|---|---|
+| Event | 55,656 |
+| County | 3,239 |
+| Declaration | 660 |
+| Tile | 37 |
+| Label | 4 |
+
+A declaration node is one declaration rather than one designated county. OpenFEMA
+publishes a row per county, so keying the node on the row gave
+14,039 nodes carrying 660 
+declarations between them. Anybody counting the label would have got the designation
+count under the wrong name. The county is the edge, and
+14,039 of them say which counties each declaration covered.
+
+The question is the cross-check. Which disaster declarations covered a county holding a tile that one annotator labelled possible or clear, where the declaration's incident window contains the event's begin date.
+
+It runs twice. Once in Cypher against the graph and once over the Parquet with polars.
+Both return 84 paths reaching the same 4
+declarations. Those are disaster numbers 3474 and 3569 and 4528 and 4626.
+
+Agreeing means something here only because the two sides could have parted. Each
+declaration is reached by 21.0 paths on average, so a version
+of either side that dropped its DISTINCT would return 84 rather than
+4. The comparison grades the path count as well as
+the set for that reason. Two counters that always agree are one counter.
+
+One branch is written on both sides and neither side exercised it. A declaration with
+no incident end date is open ended, and a date window that does not spell out the null
+drops it, in SQL and in Cypher alike. 55 declarations in
+the release have no end date. None of them sit under a labelled tile, so
+0 of the 84 paths went through that branch. The
+agreement above does not show the two engines treat the null the same way. It shows
+they agree on a question that never asks.
+
+```
+STORMFACTORY_NEO4J_HOME=/path/to/neo4j python3 scripts/build_graph.py
+```
+
+## Experiment tracking, which is not wired up
+
+Two services belong here and neither runs. Weights and Biases would hold each release
+as an artifact a baseline run consumed. Langfuse would trace a retrieval assistant over
+the narratives. Both are blocked on the same thing, which is that no cloud identity
+exists for this repository yet. `stormfactory/tracking.py` carries the intended shape
+and a TODO naming what it waits on. Every entry point raises rather than returning,
+because a tracking call that quietly does nothing produces a run that looks tracked and
+is not.
+
 ## The timestamp, and what the zone field is worth
 
 `event_begin_utc` is the first time zone aware column any artifact here carries, and it is
@@ -520,8 +649,8 @@ typed into this file.
 | FEMA county designations | 14,039 |
 | Events inside a weather declaration window | 25,745 |
 | Narratives the scrub changes | 708 |
-| Release artifacts | 10 |
-| Release artifact bytes | 31,153,566 |
+| Release artifacts | 11 |
+| Release artifact bytes | 264,538,652 |
 | States and territories | 69 |
 | SPC distinct reports | 140,621 |
 | SPC om numbers reused between report types | 6,526 |
@@ -538,10 +667,23 @@ typed into this file.
 | Tiles holding both frames | 37 |
 | Tile pairs labelled | 37 |
 | Annotators | 1 |
+| Narratives carrying a vector | 271,908 |
+| Events with no narrative | 64,106 |
+| Vector width | 256 |
+| Term vocabulary | 26,035 |
+| Distinct narrative vectors | 224,420 |
+| Rows sharing a vector with another row | 47,488 |
+| Graph events | 55,656 |
+| Graph counties | 3,239 |
+| Declarations in the graph | 660 |
+| Declaration county edges | 14,039 |
+| Declarations the labelled tiles reach | 4 |
+| Paths to those declarations | 84 |
+| Declarations with no incident end date | 55 |
 | Rows naming a standard zone in summer | 130,942 |
 | Rows naming a daylight zone | 282 |
 | Rows naming a daylight zone in winter | 103 |
-| Checks in the suite | 216 |
+| Checks in the suite | 281 |
 
 `EVENT_ID` is unique across all 336,014 rows and not only within a year, which was
 measured rather than assumed.

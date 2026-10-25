@@ -31,6 +31,9 @@ MODULES = [
     "tests.test_baseline",
     "tests.test_imagery",
     "tests.test_labelling",
+    "tests.test_vectors",
+    "tests.test_graph",
+    "tests.test_tracking",
     "tests.test_readme",
 ]
 

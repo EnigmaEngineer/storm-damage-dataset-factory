@@ -1,6 +1,6 @@
 {
-  "release": "v0.2",
-  "supersedes": "v0.1",
+  "release": "v0.3",
+  "supersedes": "v0.2",
   "what_changed_since_the_version_it_supersedes": "imagery_tiles was added. Every artifact the previous release published is byte identical and content identical to what it published",
   "digest_version": "digest-v1",
   "artifacts": {
@@ -51,6 +51,18 @@
       "content_sha256": "f494786d82af880166f081915a533b88953ea557c29336c44bff345151cb8417",
       "sort_by": [
         "tile_id"
+      ],
+      "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
+    },
+    "narrative_vectors": {
+      "path": "parquet/narrative_vectors/part.parquet",
+      "rows": 271908,
+      "columns": 7,
+      "bytes": 233385086,
+      "sha256": "c0f9b8a791c7169359f300438feca1f3043315e35b232175528fee945935077f",
+      "content_sha256": "f3fc9a4c8231a125a33cdbd03e40d63f31d21f2bd34645d976d6b18fac8c7d53",
+      "sort_by": [
+        "EVENT_ID"
       ],
       "written_by": "Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)"
     },

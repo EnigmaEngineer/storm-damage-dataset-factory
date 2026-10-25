@@ -29,12 +29,13 @@ import polars as pl
 
 from . import digest, paths
 
-# v0.2 rather than v0.1. The imagery layer adds a tenth artifact, so the dataset a reader
-# gets is not the one v0.1's manifest describes, and leaving the string alone would make
-# two different datasets answer to one name. The artifacts v0.1 published are unchanged
-# and their hashes are the same, which is the part worth saying out loud.
-RELEASE = "v0.2"
-SUPERSEDES = "v0.1"
+# v0.3 rather than v0.2. The vector column adds an eleventh artifact, so the dataset a
+# reader gets is not the one v0.2's manifest describes, and leaving the string alone
+# would make two different datasets answer to one name. The ten artifacts v0.2
+# published are unchanged and their hashes are the same, which is the part worth
+# saying out loud. The same reasoning moved v0.1 to v0.2 when the imagery layer landed.
+RELEASE = "v0.3"
+SUPERSEDES = "v0.2"
 
 # One registry, read by the manifest asset and by the check that re-derives it. The
 # sort key is part of the artifact's definition rather than a detail, because the
@@ -67,6 +68,11 @@ ARTIFACTS: dict[str, dict] = {
     # because that is what identifies a row, and `z/x/y` sorts as text in the order a
     # reader expects only because every tile here shares a zoom and a magnitude.
     "imagery_tiles": {"path": ("parquet", "imagery_tiles", "part.parquet"), "sort_by": ["tile_id"]},
+    # One row per event that carries a narrative, with the reduced vector beside the
+    # columns a filtered search restricts on. EVENT_ID identifies a row, and the
+    # digest rule for a fixed width float array is what lets the vector column into
+    # a content hash at all.
+    "narrative_vectors": {"path": ("parquet", "narrative_vectors", "part.parquet"), "sort_by": ["EVENT_ID"]},
 }
 
 

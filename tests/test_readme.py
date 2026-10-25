@@ -48,6 +48,29 @@ def _om_manifest() -> dict:
     return json.loads((REPO_ROOT / "measurements" / "spc-om.json").read_text())
 
 
+NUMBER_WORDS = {
+    9: "nine", 10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen", 14: "fourteen",
+}
+
+
+def _readme_prose() -> str:
+    """The README with its line wrapping collapsed.
+
+    Every paragraph here is hard wrapped at about 90 characters, so a sentence a check
+    looks for is usually split across two lines. A substring test against the raw text
+    fails on the wrap rather than on the content, which reads as a finding and is not.
+    """
+    return re.sub(r"\s+", " ", (REPO_ROOT / "README.md").read_text())
+
+
+def _embeddings_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "embeddings.json").read_text())
+
+
+def _graph_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "graph.json").read_text())
+
+
 def _baseline_manifest() -> dict:
     return json.loads((REPO_ROOT / "measurements" / "baseline.json").read_text())
 
@@ -69,7 +92,7 @@ def _readme_arm_rows() -> dict[str, list[str]]:
 def check_the_table_was_parsed_at_all():
     # Without this, a README whose table stopped matching the regex would make every
     # check below pass against an empty mapping.
-    assert len(_readme_table()) == 41, _readme_table()
+    assert len(_readme_table()) == 59, _readme_table()
 
 
 def check_the_county_join_counts():
@@ -493,13 +516,145 @@ def check_the_zone_field_counts_in_the_table_match_the_manifest():
 
 def check_the_release_version_and_artifact_count_agree_with_the_manifest():
     rel, table = _release_manifest(), _readme_table()
-    text = (REPO_ROOT / "README.md").read_text()
-    assert table["Release artifacts"] == len(rel["artifacts"])
-    assert f"Release {rel['release']} is ten Parquet artifacts" in text
-    assert rel["supersedes"] in text, "the superseded version is not named"
-    assert f"all {len(rel['artifacts'])} artifacts agree bit for bit" in text
+    prose = _readme_prose()
+    count = len(rel["artifacts"])
+    assert table["Release artifacts"] == count
+    assert f"Release {rel['release']} is {NUMBER_WORDS[count]} Parquet artifacts" in prose
+    assert rel["supersedes"] in prose, "the superseded version is not named"
+
+
+def check_the_rebuild_transcript_says_how_much_of_the_release_it_covers():
+    """The clean clone rebuild is a transcript of one run over the artifacts of its day.
+
+    The old form of this check asserted the transcript named the current artifact
+    count, which quietly required editing a record of a past run every time the
+    release grew. The honest version reads the count out of the transcript and makes
+    the README say so when it is short of the release.
+    """
+    rel, prose = _release_manifest(), _readme_prose()
+    count = len(rel["artifacts"])
+    m = re.search(r"all (\d+) artifacts agree bit for bit", prose)
+    assert m, "the rebuild transcript is gone from the readme"
+    rebuilt = int(m.group(1))
+    assert rebuilt <= count, f"the transcript rebuilt {rebuilt} of {count} artifacts"
+    if rebuilt < count:
+        assert f"covers {NUMBER_WORDS[rebuilt]} of the {NUMBER_WORDS[count]} artifacts" in prose, (
+            f"the transcript covers {rebuilt} of {count} artifacts and the readme does "
+            "not say which ones the bit for bit claim leaves out"
+        )
 
 
 def check_the_metres_per_pixel_in_the_prose_matches_the_manifest():
     img, text = _imagery_manifest(), (REPO_ROOT / "README.md").read_text()
     assert f"At\n{img['grid']['metres_per_pixel']} m per pixel" in text
+
+
+def check_the_vector_counts_in_the_table_match_the_embeddings_manifest():
+    t = _readme_table()
+    e = _embeddings_manifest()
+    assert t["Narratives carrying a vector"] == e["documents"]
+    assert t["Events with no narrative"] == e["events_without_a_narrative"]
+    assert t["Vector width"] == e["dimension"]
+    assert t["Term vocabulary"] == e["vocabulary"]
+    assert t["Distinct narrative vectors"] == e["distinct_vectors"]
+    assert t["Rows sharing a vector with another row"] == e["rows_sharing_a_vector_with_another_row"]
+
+
+def check_the_narrative_counts_are_the_difference_and_not_a_second_tally():
+    """With and without a narrative have to add up to the events in the release."""
+    e = _embeddings_manifest()
+    assert e["documents"] + e["events_without_a_narrative"] == e["events_in_partitions"]
+    assert _readme_table()["Event rows"] == e["events_in_partitions"]
+
+
+def check_the_distinct_and_duplicate_vectors_are_the_difference_and_not_a_second_tally():
+    e = _embeddings_manifest()
+    assert e["distinct_vectors"] + e["rows_sharing_a_vector_with_another_row"] == e["documents"]
+
+
+def check_every_recall_row_in_the_readme_matches_the_manifest():
+    """The recall table, read back cell by cell.
+
+    Three numbers per row and all three come from the manifest. The plan count is the
+    one that decides what the recall figure means, so a row carrying the recall and
+    not the plan count would be the defect this re-derivation exists to stop.
+    """
+    e = _embeddings_manifest()
+    rows = {
+        "no filter": "unfiltered",
+        "event type": "event_type",
+        "event type and state": "event_type_and_state",
+    }
+    text = (REPO_ROOT / "README.md").read_text()
+    seen = 0
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) != 5 or cells[0] not in rows:
+            continue
+        seen += 1
+        shape = rows[cells[0]]
+        assert float(cells[1]) == e[f"recall_{shape}"], (cells, shape)
+        used = f'{e[f"queries_planned_through_the_vector_index_{shape}"]} of {e["recall_queries"]}'
+        assert cells[2] == used, (cells[2], used)
+        assert int(cells[3]) == e[f"queries_differing_only_by_a_distance_tie_{shape}"], cells
+        assert int(cells[4].replace(",", "")) == e[f"median_rows_matching_the_filter_{shape}"], cells
+    assert seen == len(rows), f"parsed {seen} recall rows and expected {len(rows)}"
+
+
+def check_the_readme_says_the_selective_filter_never_reached_the_vector_index():
+    """The finding has to survive an edit that only refreshes the numbers.
+
+    The third row's recall is not an index recall. A README that dropped the
+    sentence saying so would publish a number that reads as the opposite of what it is.
+    """
+    e = _embeddings_manifest()
+    assert e["queries_planned_through_the_vector_index_event_type_and_state"] == 0, (
+        "the selective shape reached the vector index this time, so the README prose "
+        "about it is now wrong and needs rewriting rather than renumbering"
+    )
+    assert "never used the vector index" in _readme_prose()
+
+
+def check_the_readme_publishes_no_retrieval_quality_figure():
+    """There is no labelled question set, so there is no retrieval quality to report."""
+    prose = _readme_prose().lower()
+    for phrase in ("retrieval accuracy", "retrieval quality of", "ndcg", "mrr of", "semantic accuracy"):
+        assert phrase not in prose, f"the readme publishes {phrase}"
+    assert "no retrieval quality figure is published" in prose
+
+
+def check_the_graph_counts_in_the_table_match_the_graph_manifest():
+    t = _readme_table()
+    g = _graph_manifest()
+    assert t["Graph events"] == g["nodes_in_graph"]["Event"]
+    assert t["Graph counties"] == g["nodes_in_graph"]["County"]
+    assert t["Declarations in the graph"] == g["nodes_in_graph"]["Declaration"]
+    assert t["Declaration county edges"] == g["edges_in_graph"]["COVERS"]
+    assert t["Declarations with no incident end date"] == g["open_ended_declarations"]
+
+
+def check_the_cross_check_counts_in_the_table_match_the_manifest():
+    t = _readme_table()
+    cross = _graph_manifest()["cross_check"]
+    assert t["Declarations the labelled tiles reach"] == cross["graph_distinct_declarations"]
+    assert t["Paths to those declarations"] == cross["graph_paths"]
+    assert cross["graph_paths"] == cross["parquet_paths"]
+
+
+def check_the_readme_says_the_open_ended_branch_went_unexercised():
+    """An agreement on a question that never asks is a weaker claim and says so."""
+    g = _graph_manifest()
+    prose = _readme_prose()
+    if g["cross_check"]["open_ended_paths"] == 0:
+        assert "does not show the two engines treat the null the same way" in prose
+    else:
+        assert "does not show the two engines treat the null the same way" not in prose, (
+            "the branch was exercised this time and the README still says it was not"
+        )
+
+
+def check_the_release_artifact_bytes_match_the_manifest():
+    r = _release_manifest()
+    assert _readme_table()["Release artifact bytes"] == sum(
+        a["bytes"] for a in r["artifacts"].values()
+    )
