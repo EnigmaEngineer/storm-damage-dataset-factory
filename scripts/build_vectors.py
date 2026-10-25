@@ -85,6 +85,16 @@ def main(argv=None) -> int:
 
     print("building the vector column")
     frame, facts = vectors.build()
+    # A count reproduces across library versions and a decomposition does not. The
+    # column is a function of its rows and of the versions that reduced them, so a
+    # manifest naming only the rows claims more reproducibility than it has.
+    import sklearn
+    facts["build_stack"] = {
+        "python": ".".join(str(n) for n in sys.version_info[:3]),
+        "scikit_learn": sklearn.__version__,
+        "numpy": np.__version__,
+        "polars": pl.__version__,
+    }
     print(f"  {frame.height} narratives, vocabulary {facts['vocabulary']}, "
           f"explained variance {facts['explained_variance_cumulative']}")
 
