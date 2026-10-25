@@ -1,0 +1,39 @@
+{
+  "build_stack": {
+    "numpy": "2.2.6",
+    "polars": "2.0.0",
+    "python": "3.13.17",
+    "scikit_learn": "1.7.2"
+  },
+  "documents": 271908,
+  "k": 10,
+  "published_width": 256,
+  "queries": 50,
+  "recovery_gained_by_the_last_width_step": 0.046,
+  "recovery_still_rising_at_the_published_width": true,
+  "reference": "the cosine top k of the full TF-IDF matrix the reduction was fitted on, which is what the reduction approximates and not a relevance judgement",
+  "seed": 0,
+  "vocabulary": 26035,
+  "widths": {
+    "128": {
+      "column_bytes_uncompressed": 139216896,
+      "explained_variance_cumulative": 0.347742,
+      "tfidf_neighbourhood_recovery": 0.146
+    },
+    "192": {
+      "column_bytes_uncompressed": 208825344,
+      "explained_variance_cumulative": 0.404646,
+      "tfidf_neighbourhood_recovery": 0.174
+    },
+    "256": {
+      "column_bytes_uncompressed": 278433792,
+      "explained_variance_cumulative": 0.448454,
+      "tfidf_neighbourhood_recovery": 0.22
+    },
+    "64": {
+      "column_bytes_uncompressed": 69608448,
+      "explained_variance_cumulative": 0.25979,
+      "tfidf_neighbourhood_recovery": 0.136
+    }
+  }
+}

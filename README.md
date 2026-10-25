@@ -502,6 +502,45 @@ inside a group of identical vectors, and which members come back is arbitrary. O
 which is a tie broken two ways rather than the index missing anything. The naive recall
 figure counts those as misses.
 
+### How far the reduction sits from the thing it approximates
+
+No relevance labels exist here, so no retrieval quality figure is published. There is
+one honest substitute that needs no labels. The reduction approximates the cosine
+neighbourhood of the TF-IDF matrix it was fitted on, and that matrix is available, so
+the reduced column can be scored against it. Recovery below is the share of a query's
+top 10 in the full TF-IDF space that the reduced space also returns in its top
+10, over 50 queries.
+
+| Width | Explained variance | TF-IDF neighbourhood recovery | Column bytes |
+|---|---|---|---|
+| 64 | 0.25979 | 0.136 | 69,608,448 |
+| 128 | 0.347742 | 0.146 | 139,216,896 |
+| 192 | 0.404646 | 0.174 | 208,825,344 |
+| 256 | 0.448454 | 0.22 | 278,433,792 |
+
+Read this carefully, because it cuts both ways.
+
+A recovery below one is expected and part of it is the technique working. A latent
+semantic reduction is supposed to depart from the lexical neighbourhood, since that is
+how it reaches a document sharing meaning rather than vocabulary. So
+0.22 is not a score of 0.22 out of one.
+Nothing here can say how much of the departure is the technique working and how much is
+information thrown away, because answering that needs the labelled question set this
+release does not have.
+
+What the table does settle is the width. Recovery is still climbing at the published
+width and it gained 0.046 over the step from
+192, so the curve has not levelled off. Halving the column to 128 would take recovery
+from 0.22 to 0.146, which is
+about a third of it, so the width is not padding and a narrower column would cost
+something real. It also means 256 was not chosen by optimising anything. It is a
+working default sitting on a rising curve, and a wider column would score better and
+cost more.
+
+The manifest records the versions that produced the column beside the figures. A count
+reproduces across library versions and a decomposition does not, so this column is a
+function of its rows and of the stack that reduced them.
+
 The figure also moves between builds. An ivfflat index partitions by k-means from a
 random start, so rebuilding it over the same rows gives a different index. Three builds
 over this artifact today returned 0.83, 0.836 and 0.86 unfiltered.
@@ -683,7 +722,7 @@ typed into this file.
 | Rows naming a standard zone in summer | 130,942 |
 | Rows naming a daylight zone | 282 |
 | Rows naming a daylight zone in winter | 103 |
-| Checks in the suite | 281 |
+| Checks in the suite | 287 |
 
 `EVENT_ID` is unique across all 336,014 rows and not only within a year, which was
 measured rather than assumed.

@@ -321,3 +321,78 @@ def check_the_recall_figures_say_whether_the_vector_index_was_used():
         assert key in stated, f"{shape} has a recall figure and no plan count"
         tie = f"queries_differing_only_by_a_distance_tie_{shape}"
         assert tie in stated, f"{shape} has a recall figure and no tie count"
+
+
+def _fidelity_manifest() -> dict:
+    return json.loads((REPO_ROOT / "measurements" / "vector-fidelity.json").read_text())
+
+
+def check_the_fidelity_table_in_the_readme_matches_the_manifest():
+    """Every cell of the width table, read back.
+
+    Four numbers per row. The recovery figure is the one a reader would quote, and it
+    is meaningless without the width and the byte count beside it.
+    """
+    stated = _fidelity_manifest()["widths"]
+    text = (REPO_ROOT / "README.md").read_text()
+    seen = 0
+    for line in text.splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) != 4 or cells[0] not in stated:
+            continue
+        seen += 1
+        entry = stated[cells[0]]
+        assert float(cells[1]) == entry["explained_variance_cumulative"], cells
+        assert float(cells[2]) == entry["tfidf_neighbourhood_recovery"], cells
+        assert int(cells[3].replace(",", "")) == entry["column_bytes_uncompressed"], cells
+    assert seen == len(stated), f"parsed {seen} width rows and expected {len(stated)}"
+
+
+def check_the_published_width_is_the_one_the_table_recommends_keeping():
+    """The README argues the width from the curve, so the curve has to still be rising.
+
+    If a later measurement flattens it, the paragraph claiming a narrower column would
+    cost something real becomes wrong and has to be rewritten rather than renumbered.
+    """
+    stated = _fidelity_manifest()
+    assert stated["published_width"] == vectors.DIMENSION
+    assert stated["recovery_still_rising_at_the_published_width"], (
+        "recovery has levelled off at the published width, so the readme paragraph "
+        "arguing the width from a rising curve is now wrong"
+    )
+    prose = " ".join((REPO_ROOT / "README.md").read_text().split())
+    assert "has not levelled off" in prose
+
+
+def check_the_fidelity_manifest_names_the_stack_that_built_the_column():
+    stack = _fidelity_manifest()["build_stack"]
+    for name in ("scikit_learn", "numpy", "python"):
+        assert stack.get(name), f"the manifest does not name {name}"
+
+
+def check_the_fidelity_manifest_agrees_with_the_embeddings_manifest():
+    """Two manifests describing one column have to describe the same column."""
+    fid, emb = _fidelity_manifest(), json.loads(
+        (REPO_ROOT / "measurements" / "embeddings.json").read_text()
+    )
+    assert fid["published_width"] == emb["dimension"], (fid["published_width"], emb["dimension"])
+    assert fid["documents"] == emb["documents"], (fid["documents"], emb["documents"])
+    assert fid["vocabulary"] == emb["vocabulary"]
+    assert fid["seed"] == emb["seed"]
+
+
+def check_the_readme_does_not_read_the_recovery_figure_as_a_quality_score():
+    """A latent reduction is meant to depart from the lexical neighbourhood.
+
+    Reporting recovery as if one were the target would turn a design property into a
+    failure, and reporting it without the caveat would let a reader do that.
+    """
+    prose = " ".join((REPO_ROOT / "README.md").read_text().split())
+    assert "is not a score of" in prose
+    assert "part of it is the technique working" in prose
+
+
+def check_the_fidelity_manifest_holds_no_wall_time():
+    text = json.dumps(_fidelity_manifest()).lower()
+    found = [w for w in ("seconds", "_ms", "millis", "elapsed", "duration", "wall") if w in text]
+    assert not found, f"the manifest carries {found}"
