@@ -2,8 +2,16 @@
 
 `dagster dev -m stormfactory.definitions` is the interactive route. This is the one a
 run uses, because it is a single command and it exits non-zero when anything fails.
+
+The vector column is built here too, ahead of the release manifest, even though it is
+not a Dagster asset. It is the eleventh artifact in the registry and the manifest
+stage refuses to describe a release whose artifacts are not all on disk, so without
+this stage the one command in the README exits 1 on any machine that has never run
+`scripts/build_vectors.py` by hand. That was true for two days and the README said to
+run this and nothing else.
 """
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -11,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from dagster import materialize
 
-from stormfactory import assets
+from stormfactory import assets, release
 from stormfactory.assets import YEARS
 
 
@@ -44,6 +52,29 @@ def main() -> int:
     return 0 if ok else 1
 
 
+def _build_vector_column() -> bool:
+    """Run the build half of `scripts/build_vectors.py`, and only the build half.
+
+    A subprocess rather than an import, because that script parses arguments and owns
+    a server lifecycle and this one should not inherit either. `--phase build` is the
+    half that needs no database.
+
+    Skipped when the artifact is already on disk and the registry agrees with it, so a
+    rerun of this script does not spend ninety seconds re-reducing an unchanged corpus.
+    """
+    artifact = release.artifact_path("narrative_vectors")
+    if artifact.exists():
+        print(f"narrative_vectors: present at {artifact.relative_to(Path.cwd())}, not rebuilt")
+        return True
+    print("narrative_vectors: building, this is the slow stage")
+    done = subprocess.run(
+        [sys.executable, str(Path(__file__).with_name("build_vectors.py")), "--phase", "build"],
+        cwd=str(Path(__file__).resolve().parent.parent),
+    )
+    print(f"narrative_vectors: {'ok' if done.returncode == 0 else 'FAILED'}")
+    return done.returncode == 0
+
+
 def build_joins_and_scrub(ok: bool) -> bool:
     """The county join layer and the narrative scrub.
 
@@ -65,6 +96,7 @@ def build_joins_and_scrub(ok: bool) -> bool:
         ("eri_catalogue", [assets.eri_catalogue]),
         ("imagery_tiles", [assets.imagery_tiles, assets.imagery_counts_re_derive,
                            assets.tiles_hold_imagery_inside_the_declared_buffer]),
+        ("narrative_vectors", _build_vector_column),
         ("release_manifest", [assets.release_manifest, assets.release_manifest_matches_the_data,
                               assets.day3_manifests_hold_no_wall_time]),
         ("baseline_report", [assets.baseline_report, assets.baseline_counts_re_derive,
@@ -78,6 +110,9 @@ def build_joins_and_scrub(ok: bool) -> bool:
         ("tile_labels", [assets.tile_labels, assets.agreement_is_unmeasured_with_one_annotator,
                          assets.imagery_manifests_hold_no_wall_time]),
     ):
+        if callable(targets):
+            ok = targets() and ok
+            continue
         result = materialize(targets)
         ok = ok and result.success
         print(f"{label}: {'ok' if result.success else 'FAILED'}")

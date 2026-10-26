@@ -10,9 +10,14 @@ Run it from the repository root:
 
     python3 scripts/build_vectors.py
 
-It needs a Postgres server binary and the pgvector extension present. If either is
-missing it says which and exits non-zero, rather than reporting a measurement it did
-not take.
+The measurement half needs a Postgres server binary and the pgvector extension
+present. If either is missing it says which and exits non-zero, rather than reporting
+a measurement it did not take.
+
+The build half needs neither. It reads narratives and writes a Parquet file, and
+`--phase build` runs it on any machine. That split is what lets a clean clone produce
+all eleven release artifacts without installing a database, which is what
+`scripts/build_release.py` does on its last stage.
 """
 
 from __future__ import annotations
@@ -68,9 +73,17 @@ def main(argv=None) -> int:
     # that does not runs the default and gets the same result.
     parser.add_argument("--phase", choices=("build", "measure", "all"), default="all")
     args = parser.parse_args(argv)
-    bins = _server_root()
-    if psycopg2 is None:
-        raise SystemExit("psycopg2 is not installed, so the load cannot run")
+
+    # Resolved per phase rather than once at the top. The build phase is TF-IDF and a
+    # truncated SVD and it touches no server, but both checks used to run before the
+    # branch below, so a machine with no `postgresql-16` package could not run it at
+    # all. The module comment above the psycopg2 import already said the build phase
+    # should survive a missing driver. The code did not.
+    bins = None
+    if args.phase in ("measure", "all"):
+        bins = _server_root()
+        if psycopg2 is None:
+            raise SystemExit("psycopg2 is not installed, so the load cannot run")
 
     manifest = paths.release_root() / "measurements" / "embeddings.json"
     artifact = release.artifact_path("narrative_vectors")
@@ -119,11 +132,34 @@ def main(argv=None) -> int:
     )
     print(f"  fingerprint repeats: {facts['rebuild_fingerprint_matches']}")
 
+    # The two phases write disjoint key sets into one file and a build-only pass used
+    # to write over the lot, so a clean clone's build dropped every recall figure and
+    # every query plan the measure phase had put there, silently.
+    #
+    # Carrying them forward unconditionally is the other wrong answer. A recall figure
+    # describes one vector column, so it only survives a rebuild that produced the
+    # same column. The content hash decides, and a rebuild that moved the column says
+    # which keys it dropped rather than leaving the reader to notice.
+    facts = _merge_onto_existing(manifest, facts)
     manifest.write_text(json.dumps(facts, indent=2, sort_keys=True) + "\n")
     if args.phase == "build":
         print(f"wrote {manifest}, the measurement phase is still to run")
         return 0
     return _measure(bins, frame, facts, manifest)
+
+
+def _merge_onto_existing(manifest: Path, facts: dict) -> dict:
+    """Keep the measure phase's keys when the column they describe did not move."""
+    if not manifest.exists():
+        return facts
+    previous = json.loads(manifest.read_text())
+    if previous.get("content_sha256") != facts["content_sha256"]:
+        dropped = sorted(set(previous) - set(facts))
+        if dropped:
+            print(f"  the column moved, so {len(dropped)} measured keys no longer "
+                  f"describe it and are dropped: {', '.join(dropped)}")
+        return facts
+    return {**previous, **facts}
 
 
 def _measure(bins, frame, facts, manifest) -> int:
