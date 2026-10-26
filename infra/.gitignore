@@ -1,0 +1,12 @@
+# Provider binaries, 700 MB of them, and the lock that names their hashes per
+# platform. The lock is normally committed. It is not here because nothing has been
+# applied, so pinning hashes resolved on one throwaway Linux container would be
+# claiming a reproducibility this directory does not have yet. It gets committed on
+# the first run that produces a plan.
+.terraform/
+.terraform.lock.hcl
+
+# State, and the variable file holding the project id. Neither should ever be here.
+*.tfstate
+*.tfstate.*
+*.tfvars
