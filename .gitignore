@@ -4,8 +4,24 @@
 # The two directories are named separately rather than ignoring data/ outright. DVC
 # works by putting a tracked pointer file NEXT TO the untracked data, so a blanket
 # data/ rule makes data/parquet.dvc git-ignored and dvc add refuses to write it.
+#
+# data/parquet is NOT here, and that is deliberate. The release is tracked as seven
+# DVC outputs rather than one directory, so each artifact's pointer sits beside it
+# inside data/parquet/ and `dvc add` writes data/parquet/.gitignore naming the seven
+# data directories. Letting dvc own that file is the only arrangement of the three
+# tried that works, and the other two fail in different ways.
+#
+# A blanket `data/parquet/` rule makes the pointers git-ignored and `dvc add` refuses
+# outright with `bad DVC file name ... is git-ignored`. A negation does not rescue it,
+# because git will not re-include a path whose parent directory is excluded.
+#
+# `data/parquet/*/` passes that test and fails silently, which is worse. The pointers
+# are visible to git and INVISIBLE TO DVC. A bare `dvc push` then prints `Everything
+# is up to date` and exits 0 having pushed nothing, and `dvc status` says there is no
+# data tracked in the project at all. Naming a pointer explicitly still works, so the
+# pointers are fine and only discovery is broken. Reproduced in a three file scratch
+# repo before this comment was written.
 data/raw/
-data/parquet/
 data/tiles/
 data/labelstudio/
 # Contact sheets for the labelling pass. Generated from the tiles, which are not here

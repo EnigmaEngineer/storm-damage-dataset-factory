@@ -1,0 +1,6 @@
+outs:
+- md5: 1e7ebea28f9cf794f39025b8792728a8.dir
+  size: 233385086
+  nfiles: 1
+  hash: md5
+  path: narrative_vectors

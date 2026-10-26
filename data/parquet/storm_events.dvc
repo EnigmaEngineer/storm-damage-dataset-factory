@@ -1,0 +1,6 @@
+outs:
+- md5: c808d332b2f1610900e26f281dae2ad0.dir
+  size: 26861858
+  nfiles: 5
+  hash: md5
+  path: storm_events

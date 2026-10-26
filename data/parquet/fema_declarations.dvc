@@ -1,0 +1,6 @@
+outs:
+- md5: 4d83d91ea897391cd07e1058bc44e483.dir
+  size: 74949
+  nfiles: 1
+  hash: md5
+  path: fema_declarations

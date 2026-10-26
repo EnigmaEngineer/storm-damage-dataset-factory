@@ -1,0 +1,6 @@
+outs:
+- md5: f3101e7b97caae9d939b737fd8b34cf4.dir
+  size: 1476562
+  nfiles: 1
+  hash: md5
+  path: event_splits

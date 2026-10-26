@@ -28,12 +28,14 @@ MODULES = [
     "tests.test_digest",
     "tests.test_splits",
     "tests.test_release",
+    "tests.test_dvc",
     "tests.test_baseline",
     "tests.test_imagery",
     "tests.test_labelling",
     "tests.test_vectors",
     "tests.test_graph",
     "tests.test_tracking",
+    "tests.test_infra",
     "tests.test_readme",
 ]
 

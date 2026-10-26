@@ -1,0 +1,6 @@
+outs:
+- md5: 30695ab783086e21d4ef1e97d05a82cc.dir
+  size: 939203
+  nfiles: 1
+  hash: md5
+  path: spc_reports

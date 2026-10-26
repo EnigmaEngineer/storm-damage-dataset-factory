@@ -1,0 +1,6 @@
+outs:
+- md5: 5430ab390b40afd65857cf00cae30ba9.dir
+  size: 12735
+  nfiles: 1
+  hash: md5
+  path: imagery_tiles

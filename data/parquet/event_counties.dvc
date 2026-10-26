@@ -1,0 +1,6 @@
+outs:
+- md5: 09c73f1cc30d8c2d21c562d4fe04cb32.dir
+  size: 1788259
+  nfiles: 1
+  hash: md5
+  path: event_counties
