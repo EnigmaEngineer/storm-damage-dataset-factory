@@ -370,6 +370,38 @@ def check_the_fidelity_manifest_names_the_stack_that_built_the_column():
         assert stack.get(name), f"the manifest does not name {name}"
 
 
+def check_the_embeddings_manifest_names_the_stack_too():
+    """The same rule on the other manifest, which went a release without it.
+
+    The code that writes `build_stack` into `embeddings.json` was committed on its
+    own, and the file it writes was never regenerated, so the key was absent while a
+    reader of the commit log would have said it was there. Only the fidelity manifest
+    was graded for it. Both are now.
+    """
+    emb = json.loads((REPO_ROOT / "measurements" / "embeddings.json").read_text())
+    stack = emb.get("build_stack")
+    assert stack, (
+        "measurements/embeddings.json names no build stack, so the figures in it do "
+        "not say what reduced the rows. Re-run scripts/build_vectors.py --phase build"
+    )
+    for name in ("scikit_learn", "numpy", "python", "polars"):
+        assert stack.get(name), f"the embeddings manifest does not name {name}"
+
+
+def check_the_two_manifests_were_built_by_the_same_stack():
+    """A recall figure and a recovery figure about one column, measured on two stacks,
+    are two numbers about two columns. The content hash would not catch it, because
+    the column can be identical while the figures around it came from different runs.
+    """
+    fid = _fidelity_manifest()["build_stack"]
+    emb = json.loads((REPO_ROOT / "measurements" / "embeddings.json").read_text())["build_stack"]
+    differing = sorted(k for k in set(fid) | set(emb) if fid.get(k) != emb.get(k))
+    assert not differing, (
+        f"the fidelity and embeddings manifests disagree on {differing}: "
+        f"{ {k: (fid.get(k), emb.get(k)) for k in differing} }"
+    )
+
+
 def check_the_fidelity_manifest_agrees_with_the_embeddings_manifest():
     """Two manifests describing one column have to describe the same column."""
     fid, emb = _fidelity_manifest(), json.loads(

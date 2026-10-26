@@ -1,4 +1,10 @@
 {
+  "build_stack": {
+    "numpy": "2.2.6",
+    "polars": "2.0.0",
+    "python": "3.13.17",
+    "scikit_learn": "1.7.2"
+  },
   "content_sha256": "f3fc9a4c8231a125a33cdbd03e40d63f31d21f2bd34645d976d6b18fac8c7d53",
   "dimension": 256,
   "distinct_vectors": 224420,
