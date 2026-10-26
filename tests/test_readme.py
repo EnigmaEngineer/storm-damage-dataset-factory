@@ -530,13 +530,18 @@ def check_the_rebuild_transcript_says_how_much_of_the_release_it_covers():
     count, which quietly required editing a record of a past run every time the
     release grew. The honest version reads the count out of the transcript and makes
     the README say so when it is short of the release.
+
+    There is more than one transcript now. The v0.2 run stays as the record of what
+    the row ordering fix proved, and a v0.3 run was added covering the vector column.
+    An older transcript is history and is not expected to grow, so the claim is graded
+    on the furthest any of them reached rather than on the first one found.
     """
     rel, prose = _release_manifest(), _readme_prose()
     count = len(rel["artifacts"])
-    m = re.search(r"all (\d+) artifacts agree bit for bit", prose)
-    assert m, "the rebuild transcript is gone from the readme"
-    rebuilt = int(m.group(1))
-    assert rebuilt <= count, f"the transcript rebuilt {rebuilt} of {count} artifacts"
+    found = [int(n) for n in re.findall(r"all (\d+) artifacts agree bit for bit", prose)]
+    assert found, "the rebuild transcript is gone from the readme"
+    rebuilt = max(found)
+    assert rebuilt <= count, f"a transcript claims {rebuilt} artifacts and the release has {count}"
     if rebuilt < count:
         assert f"covers {NUMBER_WORDS[rebuilt]} of the {NUMBER_WORDS[count]} artifacts" in prose, (
             f"the transcript covers {rebuilt} of {count} artifacts and the readme does "

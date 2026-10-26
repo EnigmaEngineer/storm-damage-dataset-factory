@@ -9,10 +9,14 @@ python scripts/build_release.py
 ```
 
 Release v0.3 is eleven Parquet artifacts. None of them are in git. What git carries is
-`measurements/release.json` and one DVC pointer, and between them they are enough to
-say whether a rebuild produced the same dataset. v0.1 was nine artifacts and the
+`measurements/release.json` and seven DVC pointers, and between them they are enough
+to say whether a rebuild produced the same dataset. v0.1 was nine artifacts and the
 imagery layer made it ten. The narrative vector column is the eleventh, so the version
 moved again rather than the name covering two different datasets.
+
+Seven pointers rather than eleven because `dvc add` tracks a directory, and the five
+storm years share one. Seven rather than one because of what that costs a reader, which
+is the section below on pulling part of a release.
 
 ## What is real and what is synthetic
 
@@ -201,10 +205,136 @@ writers there:   Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a25
 all 10 artifacts agree bit for bit and by content
 ```
 
-That transcript is the v0.2 rebuild and it names the ten artifacts v0.2 published. The
-vector column arrived after it and has not been through a clean clone. So the bit for
-bit claim covers ten of the eleven artifacts in v0.3. The eleventh carries both hashes
-in the manifest without a second machine having reproduced them yet.
+That transcript is the v0.2 rebuild and it names the ten artifacts v0.2 published.
+
+The eleventh went through later, in a second checkout, and so did the other ten.
+
+```
+python3 scripts/verify_rebuild.py ../storm-damage-dataset-factory
+release v0.3 against the rebuild at ../storm-damage-dataset-factory
+digest digest-v1 against digest-v1
+  event_counties       same data, same bytes, rows 341869 against 341869
+  event_splits         same data, same bytes, rows 336014 against 336014
+  fema_declarations    same data, same bytes, rows 14039 against 14039
+  imagery_tiles        same data, same bytes, rows 37 against 37
+  narrative_vectors    same data, same bytes, rows 271908 against 271908
+  spc_reports          same data, same bytes, rows 141518 against 141518
+  storm_events_2019    same data, same bytes, rows 67864 against 67864
+  storm_events_2020    same data, same bytes, rows 61281 against 61281
+  storm_events_2021    same data, same bytes, rows 61389 against 61389
+  storm_events_2022    same data, same bytes, rows 69887 against 69887
+  storm_events_2023    same data, same bytes, rows 75593 against 75593
+writers here:    Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)
+writers there:   Polars (python) version 2.0.0 (build 22a147de3d2bb2e44b97338a2510816c7105c9f2)
+all 11 artifacts agree bit for bit and by content
+```
+
+The vector column reproducing is the part worth noticing, because a TF-IDF and a
+truncated SVD over 271,908 narratives is the artifact here with the most room to drift.
+It is 233 MB of float32 from a randomised decomposition, and it lands on the same bytes
+because the seed is pinned and the vocabulary is derived from the corpus rather than
+sampled. The 256 wide reduction is a fixed function of the rows and the stack named
+beside it.
+
+## The one command did not build the release, and had not for two days
+
+The line at the top of this file says the whole release is one command. For two days
+that command exited 1 on a clean clone.
+
+```
+python3 scripts/build_release.py
+  ...
+  imagery_tiles: ok
+stormfactory.release.ReleaseError: narrative_vectors is in the registry and
+  .../data/parquet/narrative_vectors/part.parquet does not exist
+```
+
+`narrative_vectors` went into the registry when the vector column was added, and the
+thing that writes it is `scripts/build_vectors.py`, which nothing called. The release manifest stage refuses to
+describe a release whose artifacts are not all on disk, which is the correct refusal,
+and it was the only thing saying so. Ten artifacts built and then the run stopped.
+
+Nobody noticed for two days because every machine that ran the build already had the
+vector column sitting in `data/parquet` from the day it was made. The defect is only
+visible from a checkout that has never had it, and the test suite does not have one.
+
+Three things were wrong behind it and the first is the only one that was obvious.
+
+The build script does not know about the vector column. It does now, as a stage before
+the manifest, shelling out to `build_vectors.py --phase build`.
+
+That phase could not run on most machines anyway. `build_vectors.py` resolved the
+Postgres binaries and checked for `psycopg2` at the top of `main`, before the branch
+that picks a phase, so a machine with no database could not run the half that needs no
+database. The comment above the import already said the build phase should survive a
+missing driver. The code did not. Both checks moved inside the branch that needs them.
+
+And `--phase build` wrote the measurement manifest rather than merging into it, so a
+build only pass dropped every recall figure and every query plan the measure phase had
+put there. It merges now, and only when the content hash says the column did not move.
+A rebuild that changes the column prints which measured keys it dropped.
+
+The full rebuild from an empty clone now exits 0 and takes about three minutes on this
+machine, of which the vector reduction is about two.
+
+## Pulling part of a release
+
+The release was tracked as one DVC output, `data/parquet`, which made a pull all or
+nothing. Once the vector column was in it, every reader of a 27 MB storm dataset was
+going to download 265 MB, and 233 MB of that is a column whose retrieval quality this
+file reports as unmeasured.
+
+Seven outputs instead, one per artifact directory. The whole release still pulls with a
+bare `dvc pull`, and the storm layer alone is now sayable.
+
+```
+dvc pull data/parquet/storm_events
+  6 files fetched and 5 files added
+storm layer alone: 26861858 bytes on disk
+whole release:     264538652 bytes
+```
+
+The pointer was also wrong, and had been since v0.1. `data/parquet.dvc` recorded nine
+files and 31,140,831 bytes while the manifest published eleven artifacts and
+264,538,652. Writing an artifact and running `dvc add` are separate acts, and the two
+releases that added an artifact did the first without the second. So the release
+carried three descriptions of itself. The manifest and this file and the pointer, and
+the pointer disagreed with the other two. `dvc pull` reproduced nine of eleven artifacts
+and said so to nobody. `tests/test_dvc.py` compares the pointer sizes against the
+manifest now. That check costs nothing and it would have caught this at v0.2.
+
+### The gitignore rule that makes `dvc push` lie
+
+Splitting one output into seven moves the pointers from `data/parquet.dvc` into
+`data/parquet/`, and that directory is git-ignored because the data is in it. Getting
+out of that took three attempts and the middle one is worth writing down.
+
+A blanket `data/parquet/` rule hides the pointers from git and `dvc add` refuses
+outright, naming the pointer rather than the rule. A negation does not rescue it,
+because git will not re-include a path whose parent directory is excluded.
+
+`data/parquet/*/` passes that test. The pointers are visible to git, `dvc add` writes
+them, and `git status` looks exactly right. DVC cannot see them at all.
+
+```
+dvc status
+  There are no data or pipelines tracked in this project yet.
+dvc push
+  Everything is up to date.
+echo $?
+  0
+```
+
+The remote directory did not exist. Naming a pointer explicitly still worked, so
+nothing was broken except discovery, and discovery is what a bare `dvc push` depends
+on. A release that was never uploaded, reported as up to date, exit 0.
+
+The arrangement that works is the one `dvc add` sets up when nothing is in its way. It
+writes `data/parquet/.gitignore` listing the seven output directories, the top level
+file says nothing about `data/parquet`, and the pointers beside the data are visible to
+both tools. `tests/test_dvc.py` refuses any rule in the top level file that names that
+directory, because the failure it guards against is silent and the next person to add
+an artifact will reach for exactly that rule.
 
 ## The splits, and the leak the random one has
 
@@ -722,7 +852,7 @@ typed into this file.
 | Rows naming a standard zone in summer | 130,942 |
 | Rows naming a daylight zone | 282 |
 | Rows naming a daylight zone in winter | 103 |
-| Checks in the suite | 287 |
+| Checks in the suite | 299 |
 
 `EVENT_ID` is unique across all 336,014 rows and not only within a year, which was
 measured rather than assumed.
@@ -788,6 +918,36 @@ Twice in two days I typed a contract from what a column looked like rather than 
 what it is. A permissive reader would have accepted both and produced nulls. The
 refusal is the feature and it cost one run each time.
 
+## The cloud side, which has not been applied
+
+`infra/` holds Terraform for where a published release would live. There are four
+things in it. A bucket for the DVC remote. A CI service account. A workload identity
+pool so a GitHub Actions run can assume that account without a key file existing
+anywhere. And a budget alert. `scripts/teardown.sh` destroys the lot.
+
+None of it has been applied and `terraform plan` has never run, because there is no
+project. The OIDC trust between this repository and a billing enabled GCP project does
+not exist, so there is no project id, no provider resource name and no service account
+email. Those three are the only things missing and none of them is a secret.
+
+What has run is `terraform validate`, against hashicorp/google 6.50.0 resolved from the
+`~> 6.12` constraint in `main.tf`. That grades the schema and nothing else.
+`tests/test_infra.py` grades four things validate would happily pass. The identity pool
+pins `assertion.repository` rather than trusting any repository on GitHub. The bucket
+sets `force_destroy = false`. The CI grant is `objectCreator` and never `objectAdmin`.
+And no variable that identifies a real project carries a default. A placeholder project
+id is the kind of thing that survives into a demo and reads as real, so
+`terraform.tfvars` is absent rather than filled in.
+
+The bill would be storage and the release is 265 MB, 88 percent of it the vector
+column. The budget is set at ten dollars with a threshold at twice it, which is not a
+forecast. It is the line past which something is reading the bucket in a loop.
+
+`scripts/teardown.sh` refuses when there is no `terraform.tfvars`, which is today, and
+it also refuses to empty the bucket. `force_destroy = false` means a `terraform
+destroy` stops on a bucket holding a release rather than deleting one, and emptying it
+is a deliberate act by somebody who has decided the release is finished.
+
 ## Known limitations
 
 - The blocking key is settled and it is the county, not the point. 136,316 of 336,014
@@ -814,10 +974,12 @@ refusal is the feature and it cost one run each time.
   the repo, and `scripts/dvc_roundtrip.sh` pushes to it and pulls back out of an empty
   checkout. That directory is created by whichever machine ran the roundtrip and it is
   not in git, so a fresh clone has no remote to pull from and has to rebuild the release
-  from the raw sources. The rebuild is one command and takes about a minute. It is still
-  not what a release that claims to be retrievable should need.
-  TODO: swap that url for a GCS bucket once the OIDC trust for CI exists.
-  Terraform for the bucket and the service account is not written yet.
+  from the raw sources. The rebuild is one command and takes about three minutes. It is
+  still not what a release that claims to be retrievable should need.
+  The Terraform for the bucket is written now and it has not been applied, so this
+  limitation is unchanged in practice and only the reason for it has moved. It is a
+  missing OIDC trust rather than missing configuration. TODO: swap the url in
+  `.dvc/config` for the `dvc_remote_url` output of `infra/` once that trust exists.
 - The leakage gap belongs to this baseline and not to the dataset. 0.0033 AUC is
   what sibling events of the test storms buy a gradient boosted tree reading fourteen
   event properties. A model given the narratives, or keyed on the county, has more to memorise
@@ -829,6 +991,10 @@ refusal is the feature and it cost one run each time.
   name rather than binned. All eight satisfy that over the full release. A narrower slice
   of one year or one state need not. The refusal is what makes that legible instead of a
   stride error from inside the estimator.
+- The bit-for-bit claim covers all eleven artifacts on two machines, and both of them
+  are x86-64 Linux running the same wheel. Nothing has rebuilt this on another
+  architecture, and the vector column is the one that would move first if a BLAS
+  implementation differed under the decomposition.
 - The bit-for-bit claim is a claim about one polars build. Every artifact rebuilds
   byte for byte under `polars 2.0.0`, and the footer carries a build hash rather than
   only a version, so a wheel rebuilt from the same tag would move every byte hash
@@ -861,7 +1027,12 @@ refusal is the feature and it cost one run each time.
   release it reports the random column's 27,907 beside the two zeros so the measurement
   is visibly working rather than merely quiet.
 - The DVC remote has only ever been a directory on the same filesystem. Nothing here
-  has exercised a pull over a network.
+  has exercised a pull over a network, and the selective pull measured above is a
+  local copy rather than a download.
+- The rebuild was proved by a second checkout on one machine and not by a second
+  machine. Both ran the same interpreter and the same wheels, so what it demonstrates
+  is that the build is a function of its inputs and not of leftover state. A genuinely
+  independent rebuild is a CI matrix and that is still not written.
 - The imagery tiles are not in the release. What is published is the metadata, the two
   content hashes per tile and the URL each one came from. The pixels stay on NOAA's
   tile server, so a rebuild depends on that server continuing to answer and on the
@@ -913,6 +1084,10 @@ scripts/build_release.py   build every partition headlessly
 scripts/verify_rebuild.py  compare a rebuild against the release manifest
 scripts/contact_sheets.py  lay the tile pairs out for a pass without a browser
 scripts/dvc_roundtrip.sh   push to the dvc remote and pull back into an empty checkout
+scripts/build_vectors.py   reduce the narratives, then load and measure in pgvector
+scripts/build_graph.py     load the release into Neo4j and check one answer twice
+scripts/teardown.sh        destroy what infra/ creates, and say what it will not
+infra/                     terraform for the bucket, the CI identity and the budget
 tests/run_all.py           the whole suite, no test framework needed
 ```
 
