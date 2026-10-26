@@ -1,7 +1,7 @@
 {
   "release": "v0.3",
   "supersedes": "v0.2",
-  "what_changed_since_the_version_it_supersedes": "imagery_tiles was added. Every artifact the previous release published is byte identical and content identical to what it published",
+  "what_changed_since_the_version_it_supersedes": "narrative_vectors was added, a 256 wide reduction of the scrubbed narratives covering the 271908 events that carry one. Every artifact the previous release published is byte identical and content identical to what it published",
   "digest_version": "digest-v1",
   "artifacts": {
     "event_counties": {

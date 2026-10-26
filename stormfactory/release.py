@@ -37,6 +37,23 @@ from . import digest, paths
 RELEASE = "v0.3"
 SUPERSEDES = "v0.2"
 
+# What each version added, by the version that added it. The manifest reads this with
+# RELEASE as the key, so bumping the version without describing the bump raises a
+# KeyError here rather than publishing the previous version's sentence under the new
+# name. That is the failure this dictionary exists to make loud.
+CHANGES = {
+    "v0.2": (
+        "imagery_tiles was added. Every artifact the previous release published is "
+        "byte identical and content identical to what it published"
+    ),
+    "v0.3": (
+        "narrative_vectors was added, a 256 wide reduction of the scrubbed narratives "
+        "covering the 271908 events that carry one. Every artifact the previous "
+        "release published is byte identical and content identical to what it "
+        "published"
+    ),
+}
+
 # One registry, read by the manifest asset and by the check that re-derives it. The
 # sort key is part of the artifact's definition rather than a detail, because the
 # content digest is only well defined once the row order is pinned.
@@ -135,10 +152,11 @@ def build_manifest() -> dict:
     return {
         "release": RELEASE,
         "supersedes": SUPERSEDES,
-        "what_changed_since_the_version_it_supersedes": (
-            "imagery_tiles was added. Every artifact the previous release published is "
-            "byte identical and content identical to what it published"
-        ),
+        # Keyed off RELEASE rather than written as one string, because the string
+        # above it said "imagery_tiles was added" for two days after the version moved
+        # to v0.3, which is the v0.1 to v0.2 change. A constant beside a constant falls
+        # out of step the moment one of them moves, and no check compared them.
+        "what_changed_since_the_version_it_supersedes": CHANGES[RELEASE],
         "digest_version": digest.DIGEST_VERSION,
         "artifacts": artifacts,
         "writers": writers,
